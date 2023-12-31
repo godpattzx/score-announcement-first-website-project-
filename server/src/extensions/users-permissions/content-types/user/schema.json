@@ -9,8 +9,7 @@
     "displayName": "User"
   },
   "options": {
-    "draftAndPublish": false,
-    "timestamps": true
+    "draftAndPublish": false
   },
   "attributes": {
     "username": {
@@ -66,17 +65,23 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "events": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::event.event",
-      "mappedBy": "owner"
-    },
     "entries": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::entry.entry",
       "mappedBy": "owner"
+    },
+    "views": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::view.view",
+      "mappedBy": "student"
+    },
+    "subjects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::subject.subject",
+      "mappedBy": "staff"
     }
   }
 }

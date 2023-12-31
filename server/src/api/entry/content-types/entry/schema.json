@@ -4,7 +4,7 @@
   "info": {
     "singularName": "entry",
     "pluralName": "entries",
-    "displayName": "Entry",
+    "displayName": "Viewsssss",
     "description": ""
   },
   "options": {
@@ -26,12 +26,6 @@
     },
     "ack_datetime": {
       "type": "datetime"
-    },
-    "event": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::event.event",
-      "inversedBy": "entries"
     }
   }
 }
