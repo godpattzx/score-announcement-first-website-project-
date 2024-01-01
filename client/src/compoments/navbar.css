@@ -1,0 +1,68 @@
+:root {
+  --navbar-bg-color: #DBCC95;
+  --navbar-text-color: #000000;
+  --navbar-text-hover-color: #CD8D7A;
+  --navbar-brand-color: #000000;
+  --navbar-brand-hover-color: #CD8D7A;
+  --navbar-link-underline-color: #CD8D7A;
+  --navbar-link-underline-hover-color: #CD8D7A;
+}
+
+.navbar {
+  background-color: var(--navbar-bg-color);
+  padding: 15px 0;
+}
+
+.navbar-brand {
+  color: var(--navbar-brand-color) !important;
+  margin-left: 30px;
+}
+
+.navbar-brand:hover {
+  color: var(--navbar-brand-hover-color) !important;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-nav .nav-link {
+  color: var(--navbar-text-color) !important;
+  position: relative;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--navbar-text-hover-color) !important;
+}
+
+.navbar-nav .nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background-color: var(--navbar-link-underline-color);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover::after {
+  opacity: 1;
+}
+
+.right-align {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-nav .sign-in-as {
+  margin-right: 20px;
+}
+
+.navbar-nav .button{
+  margin-right : 30px
+}

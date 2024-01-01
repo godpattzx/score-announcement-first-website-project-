@@ -14,9 +14,11 @@ import StudentPage from './wed_page/StudentPage';
 import LandingPage from './wed_page/LandingPage';
 import LoginForm from './login/loginPage';
 
+
 const router = createBrowserRouter([
   {
     path: "/",
+    index: true,
     element: <LandingPage/>,
   },
   {

@@ -1,11 +1,13 @@
 import React ,{useState} from "react";
 import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css"
 
 import "./LandingPage.css";
 import {Toggle} from './components/toggle';
+import useLocalStorage from "use-local-storage";
 
 export const LandingPage = () => {
-    const [isDark, setIsDark] = useState(true)
+    const [isDark, setIsDark] = useLocalStorage("isDark",false);
     const navigate = useNavigate()
 
     const handleLogin = () => {
@@ -18,7 +20,7 @@ export const LandingPage = () => {
                 isChecked={isDark}
                 handleChange={() => setIsDark(!isDark)}
             />
-            <hi className="title">Manegement Score</hi>
+            <hi className="title">Score Management</hi>
             <div className="box">
                 <h2 onClick={handleLogin}>Login</h2>
                 

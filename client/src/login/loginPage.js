@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import "./loginPage.css";
 import BackgroundImage from "../image/image-from-rawpixel-id-2909890-jpeg.jpg";
 import Logo from "../image/psu1.png";
+import "bootstrap/dist/css/bootstrap.min.css"
+
 
 const LoginForm = () => {
   const navigate = useNavigate();
