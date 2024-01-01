@@ -1,0 +1,59 @@
+:root {
+    --background-color: #f6f6f6;
+    --foreground-color: #003cff;
+    --primary-text-color: #0a0a0a;
+    --secondary-text-color: #ffffff;
+    --toggle-bg: #f0eb9d;
+}
+
+[data-theme='dark'] {
+    --background-color: #0a0a0a;
+    --foreground-color: #567aff;
+    --primary-text-color: #f6f6f6;
+    --secondary-text-color: #0a0a0a;
+    --toggle-bg: #283452;
+    --toggle-fd: #00a6ff;
+}
+
+.toggle-container {
+    position: absolute;
+    top: 2em;
+    right: 2em;
+}
+
+.toggle {
+    visibility: hidden;
+}
+
+.toggle + label {
+    display: flex;
+    align-items: center;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: var(--primary-text-color);
+}
+
+.toggle + label::before {
+    content: "";
+    height: 1em;
+    width: 2em;
+    border-radius: 1em;
+    background-color: var(--toggle-bg);
+    margin-right: 0.5em;
+    transition: background-color 250ms ease-in-out;
+}
+
+.toggle + label:after {
+    content: "";
+    height: 0.8em;
+    width: 0.8em;
+    border-radius: 1em;
+    background-color: var(--toggle-fd);
+    position: absolute;
+    left: 0.2em;
+    transition: background-color 250ms ease-in-out, transform 250ms ease-in-out;
+}
+
+.toggle:checked + label:after {
+    transform: translateX(100%);
+}

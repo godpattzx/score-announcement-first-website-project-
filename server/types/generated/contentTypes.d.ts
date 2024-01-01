@@ -362,6 +362,84 @@ export interface AdminTransferTokenPermission extends Schema.CollectionType {
   };
 }
 
+export interface ApiSubjectSubject extends Schema.CollectionType {
+  collectionName: 'subjects';
+  info: {
+    singularName: 'subject';
+    pluralName: 'subjects';
+    displayName: 'subject';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String & Attribute.Required;
+    effective_datetime: Attribute.DateTime;
+    description: Attribute.Blocks;
+    views: Attribute.Relation<
+      'api::subject.subject',
+      'oneToMany',
+      'api::view.view'
+    >;
+    staff: Attribute.Relation<
+      'api::subject.subject',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::subject.subject',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::subject.subject',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiViewView extends Schema.CollectionType {
+  collectionName: 'views';
+  info: {
+    singularName: 'view';
+    pluralName: 'views';
+    displayName: 'view';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    score: Attribute.Float;
+    seen_datetime: Attribute.DateTime;
+    ack: Attribute.Boolean & Attribute.DefaultTo<false>;
+    subject: Attribute.Relation<
+      'api::view.view',
+      'manyToOne',
+      'api::subject.subject'
+    >;
+    student: Attribute.Relation<
+      'api::view.view',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::view.view', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::view.view', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface PluginUploadFile extends Schema.CollectionType {
   collectionName: 'files';
   info: {
@@ -659,11 +737,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    events: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'oneToMany',
-      'api::event.event'
-    >;
     entries: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
@@ -696,170 +769,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
 }
 
-export interface ApiEntryEntry extends Schema.CollectionType {
-  collectionName: 'entries';
-  info: {
-    singularName: 'entry';
-    pluralName: 'entries';
-    displayName: 'Viewsssss';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    result: Attribute.String;
-    owner: Attribute.Relation<
-      'api::entry.entry',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    seen_datetime: Attribute.DateTime;
-    ack_datetime: Attribute.DateTime;
-    event: Attribute.Relation<
-      'api::entry.entry',
-      'manyToOne',
-      'api::event.event'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::entry.entry',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::entry.entry',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiEventEvent extends Schema.CollectionType {
-  collectionName: 'events';
-  info: {
-    singularName: 'event';
-    pluralName: 'events';
-    displayName: 'Subjectssssss';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    name: Attribute.String;
-    effective_datetime: Attribute.DateTime;
-    owner: Attribute.Relation<
-      'api::event.event',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    entries: Attribute.Relation<
-      'api::event.event',
-      'oneToMany',
-      'api::entry.entry'
-    >;
-    description: Attribute.Blocks;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::event.event',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::event.event',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiSubjectSubject extends Schema.CollectionType {
-  collectionName: 'subjects';
-  info: {
-    singularName: 'subject';
-    pluralName: 'subjects';
-    displayName: 'subject';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    name: Attribute.String & Attribute.Required;
-    effective_datetime: Attribute.DateTime;
-    description: Attribute.Blocks;
-    views: Attribute.Relation<
-      'api::subject.subject',
-      'oneToMany',
-      'api::view.view'
-    >;
-    staff: Attribute.Relation<
-      'api::subject.subject',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::subject.subject',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::subject.subject',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiViewView extends Schema.CollectionType {
-  collectionName: 'views';
-  info: {
-    singularName: 'view';
-    pluralName: 'views';
-    displayName: 'view';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    score: Attribute.Float;
-    seen_datetime: Attribute.DateTime;
-    ack: Attribute.Boolean & Attribute.DefaultTo<false>;
-    subject: Attribute.Relation<
-      'api::view.view',
-      'manyToOne',
-      'api::subject.subject'
-    >;
-    student: Attribute.Relation<
-      'api::view.view',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<'api::view.view', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<'api::view.view', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-  };
-}
-
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -870,16 +779,14 @@ declare module '@strapi/types' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
+      'api::subject.subject': ApiSubjectSubject;
+      'api::view.view': ApiViewView;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::i18n.locale': PluginI18NLocale;
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
-      'api::entry.entry': ApiEntryEntry;
-      'api::event.event': ApiEventEvent;
-      'api::subject.subject': ApiSubjectSubject;
-      'api::view.view': ApiViewView;
     }
   }
 }

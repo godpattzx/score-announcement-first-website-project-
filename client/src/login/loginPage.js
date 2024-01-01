@@ -1,6 +1,6 @@
 // SimpleLoginForm.js
 import React, { useState } from "react";
-import { Form, ButtonForm, Button, Alert } from "react-bootstrap";
+import { Form, Button, Alert } from "react-bootstrap";
 import axios from "axios";
 import axiosConfig from "../axios-interceptor";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +25,10 @@ const LoginForm = () => {
     setPassword(e.target.value);
   };
 
+  const handleGuestLogin = (e) => {
+    navigate("/student");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
    setSubmitEnabled(false);
@@ -37,7 +41,9 @@ const LoginForm = () => {
         password: password,
       });
       axiosConfig.jwt = result.data.jwt;
+      localStorage.setItem("authToken", result.data.jwt);
       setSubmitEnabled(true);
+      
       
 
       result = await axios.get(
@@ -48,8 +54,14 @@ const LoginForm = () => {
         if (result.data.role.name === "Student") {
           navigate("/student");
         }
+        else if(result.data.role.name === "Staff") {
+          navigate("/student");
+        }
         setLoading(false);
+        
+      
       }
+
       console.log(result);
     } catch (e) {
       console.log(e);
@@ -137,15 +149,17 @@ const LoginForm = () => {
         <Button
           className="text-muted px-0"
           variant="link"
-          onClick={handlePassword}
+         
+          
+          onClick={handleGuestLogin}
         >
-          Forgot password?
+          Guest Login
         </Button>
       </div>
     </Form>
     {/* Footer */}
     <div className="w-100 mb-2 position-absolute bottom-0 start-50 translate-middle-x text-white text-center">
-      Made by Hendrik C | &copy;2022
+      pann-project | &copy;2024
     </div>
   </div>
 );

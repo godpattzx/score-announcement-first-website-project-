@@ -7,17 +7,25 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {
   createBrowserRouter,
   RouterProvider,
+  Route,
+  Link
 } from "react-router-dom";
-import StudentPage from './StudentPage';
+import StudentPage from './wed_page/StudentPage';
+import LandingPage from './wed_page/LandingPage';
+import LoginForm from './login/loginPage';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App/>,
+    element: <LandingPage/>,
   },
   {
     path: "/student",
     element: <StudentPage/>,
+  },
+  {
+    path: "/login",
+    element: <LoginForm/>,
   }
 ]);
 
