@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css"
 
 import "./LandingPage.css";
-import {Toggle} from './components/toggle';
+import {Toggle} from './components-webs/toggle';
 import useLocalStorage from "use-local-storage";
 
 export const LandingPage = () => {

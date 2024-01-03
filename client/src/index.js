@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -10,8 +10,8 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import StudentPage from './wed_page/StudentPage';
-import LandingPage from './wed_page/LandingPage';
+import StudentPage from './web_page/StudentPage';
+import LandingPage from './web_page/LandingPage';
 import LoginForm from './login/loginPage';
 
 
