@@ -4,6 +4,7 @@ import axios from "axios";
 
 const StudentPage = () => {
   const [scores, setScores] = useState([]);
+  const [subject, setSubject] = useEffect([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +22,8 @@ const StudentPage = () => {
 
   return (
     <div>
-      <NavigationBar />
+
+
       <h2>Student Page</h2>
 
       <table>
@@ -49,6 +51,7 @@ const StudentPage = () => {
           )}
         </tbody>
       </table>
+    
     </div>
   );
 };

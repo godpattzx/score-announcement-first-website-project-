@@ -10,7 +10,7 @@ const StaffPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:1337/api/views');
+        const response = await axios.get('http://localhost:1337/api/subjects');
         setSubjects(response.data.data);
       } catch (error) {
         console.error('Error fetching subjects:', error);
@@ -23,6 +23,7 @@ const StaffPage = () => {
   return (
     <div>
       <NavigationBar />
+   
       <h2>Staff Page</h2>
       <select onChange={(e) => setSelectedSubject(e.target.value)}>
         {subjects.map((subject) => (

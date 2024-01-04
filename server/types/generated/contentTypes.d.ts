@@ -387,6 +387,7 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    CourseCode: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

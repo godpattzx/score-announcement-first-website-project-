@@ -13,6 +13,7 @@ import {
 import StudentPage from './web_page/StudentPage';
 import LandingPage from './web_page/LandingPage';
 import LoginForm from './login/loginPage';
+import App from './App';
 
 
 const router = createBrowserRouter([
@@ -23,7 +24,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/student",
-    element: <StudentPage/>,
+    element: <App/>,
   },
   {
     path: "/login",
