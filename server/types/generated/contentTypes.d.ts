@@ -384,10 +384,11 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
     >;
     staff: Attribute.Relation<
       'api::subject.subject',
-      'manyToOne',
+      'oneToMany',
       'plugin::users-permissions.user'
     >;
     CourseCode: Attribute.String;
+    Lecturer: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -748,9 +749,9 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::view.view'
     >;
-    subjects: Attribute.Relation<
+    subject: Attribute.Relation<
       'plugin::users-permissions.user',
-      'oneToMany',
+      'manyToOne',
       'api::subject.subject'
     >;
     createdAt: Attribute.DateTime;

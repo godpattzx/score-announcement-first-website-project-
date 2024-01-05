@@ -30,11 +30,14 @@
     },
     "staff": {
       "type": "relation",
-      "relation": "manyToOne",
+      "relation": "oneToMany",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "subjects"
+      "mappedBy": "subject"
     },
     "CourseCode": {
+      "type": "string"
+    },
+    "Lecturer": {
       "type": "string"
     }
   }

@@ -77,11 +77,11 @@
       "target": "api::view.view",
       "mappedBy": "student"
     },
-    "subjects": {
+    "subject": {
       "type": "relation",
-      "relation": "oneToMany",
+      "relation": "manyToOne",
       "target": "api::subject.subject",
-      "mappedBy": "staff"
+      "inversedBy": "staff"
     }
   }
 }
