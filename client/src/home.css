@@ -1,0 +1,128 @@
+body {
+    background-color: #f5f5f5; 
+    color: #333; 
+  }
+  
+  .container {
+    margin-top: 50px; 
+  }
+  
+  .table {
+    background-color: #fff; 
+    border-radius: 8px; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+  }
+  
+  .table thead th {
+    background-color: #e0e0e0; 
+  }
+  
+  .table tbody td {
+    border-bottom: 1px solid #ddd; 
+  }
+  
+  .model_box {
+    margin-top: 20px; 
+  }
+  
+
+/* Add this CSS to your home.css file or in the style section of your component */
+
+/* Style for the "View Score" button in the column */
+.table-column-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Style for the "View Score" button */
+  .button-view-score {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: #fff; /* Text color */
+    border: none; /* Remove border */
+    padding: 8px 16px; /* Adjust padding */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Add smooth transition effect */
+  }
+  
+  /* Hover effect for the button */
+  .button-view-score:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+  }
+  
+
+  .text-center {
+    text-align: center;
+  }
+  
+  /* เพิ่มส่วนของ container ทั้งหมด */
+.container {
+    background-color: #FDF5E6; /* ใส่สี earth tone ให้กับ container */
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+  }
+  
+  /* เพิ่ม margin ใน row */
+  .row {
+    margin-bottom: 20px;
+  }
+  
+  /* เปลี่ยนสีตาราง */
+  .table {
+    background-color: #FFF8DC; /* ใส่สี earth tone ให้กับตาราง */
+    border-radius: 10px;
+  }
+  
+  /* เพิ่ม padding ใน cell ของตาราง */
+  .table td,
+  .table th {
+    padding: 15px;
+  }
+  
+  /* เปลี่ยนสีขอบของตาราง */
+  .table-bordered {
+    border-color: #CD8D7A; /* ใส่สี earth tone ให้กับขอบของตาราง */
+  }
+  
+  /* เปลี่ยนสี background ของ modal */
+  .modal {
+    background-color: #FDF5E6; /* ใส่สี earth tone ให้กับ modal */
+  }
+  
+  /* เปลี่ยนสีขอบของ modal */
+  .modal-content {
+    border: 1px solid #CD8D7A; /* ใส่สี earth tone ให้กับขอบของ modal */
+    border-radius: 10px;
+  }
+  
+  /* เปลี่ยนสีปุ่มใน modal */
+  .modal-footer button {
+    background-color: #CD8D7A; /* ใส่สี earth tone ให้กับปุ่มใน modal */
+    color: #FFF; /* ใส่สี text ให้กับปุ่มใน modal */
+  }
+  
+  /* เพิ่มส่วนของ model_box */
+  .model_box {
+    background-color: #FDF5E6; /* ใส่สี earth tone ให้กับ model_box */
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+  }
+  
+  /* เปลี่ยนสีปุ่ม view score */
+  .button-view-score {
+    background-color: #CD8D7A; /* ใส่สี earth tone ให้กับปุ่ม view score */
+    color: #FFF; /* ใส่สี text ให้กับปุ่ม view score */
+  }
+  
+  /* เพิ่ม margin ใน .table-column-button */
+  .table-column-button {
+    margin-left: 10px;
+  }
+  
+  
+  
+  
+  

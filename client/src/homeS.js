@@ -4,7 +4,7 @@ import { Button, Modal } from "react-bootstrap";
 import axios from "axios";
 import "./home.css";
 
-function Home() {
+function HomeS() {
   const [show, setShow] = useState(false);
   const [data, setData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -103,4 +103,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default HomeS;

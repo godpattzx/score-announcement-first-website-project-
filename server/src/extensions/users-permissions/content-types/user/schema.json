@@ -65,12 +65,6 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "entries": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::entry.entry",
-      "mappedBy": "owner"
-    },
     "views": {
       "type": "relation",
       "relation": "oneToMany",

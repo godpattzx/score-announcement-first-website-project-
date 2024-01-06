@@ -10,10 +10,11 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import StudentPage from './web_page/StudentPage';
+
 import LandingPage from './web_page/LandingPage';
 import LoginForm from './login/loginPage';
 import App from './App';
+import HomeS from './homeS';
 
 
 const router = createBrowserRouter([
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginForm/>,
+  },
+  {
+    path: "/staff",
+    element: <HomeS/>,
   }
 ]);
 

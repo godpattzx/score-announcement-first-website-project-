@@ -48,6 +48,7 @@ const NavigationBar = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto">
             <Nav.Link href="/student">Home</Nav.Link>
+            <Nav.Link href="/staff">Staff Management</Nav.Link>
           </Nav>
           <Nav className="right-align">
             {userData ? (
@@ -64,9 +65,14 @@ const NavigationBar = () => {
                 </Button>
               </>
             ) : (
-              <Button variant="outline-primary" href="/login">
-                Login
-              </Button>
+             
+              <Button
+              className="mr-10 button"
+              variant="outline-primary"
+              href="/login"
+            >
+              Login
+            </Button>
             )}
           </Nav>
         </Navbar.Collapse>

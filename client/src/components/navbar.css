@@ -8,6 +8,10 @@
   --navbar-link-underline-hover-color: #CD8D7A;
 }
 
+body {
+  background-color: #F4EAE6; /* เปลี่ยนสี background ของ body เป็น earth tone */
+}
+
 .navbar {
   background-color: var(--navbar-bg-color);
   padding: 15px 0;
@@ -63,6 +67,6 @@
   margin-right: 20px;
 }
 
-.navbar-nav .button{
-  margin-right : 30px
+.navbar-nav .button {
+  margin-right: 30px;
 }
