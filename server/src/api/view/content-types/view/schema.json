@@ -22,17 +22,20 @@
       "type": "boolean",
       "default": false
     },
+    "students": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "views"
+    },
     "subject": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::subject.subject",
       "inversedBy": "views"
     },
-    "student": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::users-permissions.user",
-      "inversedBy": "views"
+    "student_id": {
+      "type": "string"
     }
   }
 }

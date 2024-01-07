@@ -17,7 +17,7 @@ const NavigationBar = () => {
 
         if (authToken) {
           const response = await axios.get(
-            "http://localhost:1337/api/users/me",
+            "http://localhost:1337/api/users/me?populate=role",
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
@@ -48,7 +48,21 @@ const NavigationBar = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto">
             <Nav.Link href="/student">Home</Nav.Link>
-            <Nav.Link href="/staff">Staff Management</Nav.Link>
+            {userData ? (
+              userData.role && userData.role.type === "staff" ? (
+                <Nav.Link href="/staff">Staff Management</Nav.Link>
+              ) : (
+                <></>
+              )
+            ) : (
+              <Button
+                className="mr-10 button"
+                variant="outline-primary"
+                href="/login"
+              >
+                Login
+              </Button>
+            )}
           </Nav>
           <Nav className="right-align">
             {userData ? (
@@ -65,14 +79,13 @@ const NavigationBar = () => {
                 </Button>
               </>
             ) : (
-             
               <Button
-              className="mr-10 button"
-              variant="outline-primary"
-              href="/login"
-            >
-              Login
-            </Button>
+                className="mr-10 button"
+                variant="outline-primary"
+                href="/login"
+              >
+                Login
+              </Button>
             )}
           </Nav>
         </Navbar.Collapse>

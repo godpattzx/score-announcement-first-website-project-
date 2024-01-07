@@ -22,12 +22,6 @@
     "description": {
       "type": "blocks"
     },
-    "views": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::view.view",
-      "mappedBy": "subject"
-    },
     "staff": {
       "type": "relation",
       "relation": "oneToMany",
@@ -39,6 +33,12 @@
     },
     "Lecturer": {
       "type": "string"
+    },
+    "views": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::view.view",
+      "mappedBy": "subject"
     }
   }
 }

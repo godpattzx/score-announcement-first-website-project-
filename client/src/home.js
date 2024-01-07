@@ -1,5 +1,4 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import axios from "axios";
 import "./home.css";
@@ -8,11 +7,33 @@ function Home() {
   const [show, setShow] = useState(false);
   const [data, setData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [userScores, setUserScores] = useState([]); // State to store user scores
 
   const handleClose = () => setShow(false);
+
   const handleShow = (item) => {
     setSelectedItem(item);
     setShow(true);
+
+    const subjectName = item.attributes.name;
+    const username = "1student"; // Replace with the actual logged-in user's username
+    const authToken = localStorage.getItem("authToken");
+
+    axios
+      .get(`http://localhost:1337/api/views?subject=${subjectName}&student_id=${username}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      })
+      .then((res) => {
+        console.log("User Scores API Response:", res.data);
+
+        // Assuming the response contains an array of scores under the "data" key
+        setUserScores(res.data.data);
+      })
+      .catch((err) => {
+        console.error("User Scores API Error:", err);
+      });
   };
 
   const getData = () => {
@@ -88,7 +109,12 @@ function Home() {
                 {/* Display score details for the selected item */}
                 <p>Course Code: {selectedItem.attributes.CourseCode}</p>
                 <p>Subject: {selectedItem.attributes.name}</p>
-                {/* Add more details as needed */}
+                {/* Display user scores */}
+                {userScores.map((score) => (
+                  <div key={score.id}>
+                    <p>Score: {score.attributes.score}</p>
+                  </div>
+                ))}
               </div>
             )}
           </Modal.Body>

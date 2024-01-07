@@ -377,11 +377,6 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
     name: Attribute.String & Attribute.Required;
     effective_datetime: Attribute.DateTime;
     description: Attribute.Blocks;
-    views: Attribute.Relation<
-      'api::subject.subject',
-      'oneToMany',
-      'api::view.view'
-    >;
     staff: Attribute.Relation<
       'api::subject.subject',
       'oneToMany',
@@ -389,6 +384,11 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
     >;
     CourseCode: Attribute.String;
     Lecturer: Attribute.String;
+    views: Attribute.Relation<
+      'api::subject.subject',
+      'oneToMany',
+      'api::view.view'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -422,16 +422,17 @@ export interface ApiViewView extends Schema.CollectionType {
     score: Attribute.Float;
     seen_datetime: Attribute.DateTime;
     ack: Attribute.Boolean & Attribute.DefaultTo<false>;
+    students: Attribute.Relation<
+      'api::view.view',
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
     subject: Attribute.Relation<
       'api::view.view',
       'manyToOne',
       'api::subject.subject'
     >;
-    student: Attribute.Relation<
-      'api::view.view',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
+    student_id: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -739,15 +740,15 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    views: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'oneToMany',
-      'api::view.view'
-    >;
     subject: Attribute.Relation<
       'plugin::users-permissions.user',
       'manyToOne',
       'api::subject.subject'
+    >;
+    views: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToMany',
+      'api::view.view'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
