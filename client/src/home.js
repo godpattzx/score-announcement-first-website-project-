@@ -7,40 +7,57 @@ function Home() {
   const [show, setShow] = useState(false);
   const [data, setData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [userScores, setUserScores] = useState([]); // State to store user scores
+  const [userScores, setUserScores] = useState([]);
+  const [username, setUsername] = useState(null);
 
   const handleClose = () => setShow(false);
 
   const handleShow = (item) => {
     setSelectedItem(item);
     setShow(true);
-
+  
     const subjectName = item.attributes.name;
-    const username = "1student"; // Replace with the actual logged-in user's username
+    let username;  // Declare the variable here
+  
     const authToken = localStorage.getItem("authToken");
-
+  
     axios
-      .get(`http://localhost:1337/api/views?subject=${subjectName}&student_id=${username}`, {
+      .get("http://localhost:1337/api/users/me", {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
       })
-      .then((res) => {
-        console.log("User Scores API Response:", res.data);
-
-        // Assuming the response contains an array of scores under the "data" key
-        setUserScores(res.data.data);
+      .then((response) => {
+        username = response.data.username;  // Assign the value here
+        setUsername(username);  // Set the state
+        console.log(response.data.username);
+  
+        // Now, make the second Axios request inside this block
+        axios
+          .get(`http://localhost:1337/api/views?filters[subject][name][$eq]=${subjectName}&filters[student_id][$eq]=${username}`, {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          })
+          .then((res) => {
+            console.log("User Scores API Response:", res.data);
+            setUserScores(res.data.data);
+          })
+          .catch((err) => {
+            console.error("User Scores API Error:", err);
+          });
       })
-      .catch((err) => {
-        console.error("User Scores API Error:", err);
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
       });
   };
+  
 
   const getData = () => {
     axios
       .get("http://localhost:1337/api/subjects")
       .then((res) => {
-        console.log("API Response:", res.data);
+        console.log("API Response Subjects:", res.data);
         setData(res.data.data);
       })
       .catch((err) => {
@@ -98,7 +115,6 @@ function Home() {
         </div>
       </div>
       <div className="model_box">
-        {/* Modal code for displaying the selected item's score */}
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton>
             <Modal.Title>Score Details</Modal.Title>
@@ -106,10 +122,8 @@ function Home() {
           <Modal.Body>
             {selectedItem && (
               <div>
-                {/* Display score details for the selected item */}
                 <p>Course Code: {selectedItem.attributes.CourseCode}</p>
                 <p>Subject: {selectedItem.attributes.name}</p>
-                {/* Display user scores */}
                 {userScores.map((score) => (
                   <div key={score.id}>
                     <p>Score: {score.attributes.score}</p>
