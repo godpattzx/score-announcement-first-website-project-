@@ -17,7 +17,7 @@ function Home() {
     setShow(true);
   
     const subjectName = item.attributes.name;
-    let username;  // Declare the variable here
+    let username; // Declare the variable here
   
     const authToken = localStorage.getItem("authToken");
   
@@ -28,8 +28,8 @@ function Home() {
         },
       })
       .then((response) => {
-        username = response.data.username;  // Assign the value here
-        setUsername(username);  // Set the state
+        username = response.data.username; // Assign the value here
+        setUsername(username); // Set the state
         console.log(response.data.username);
   
         // Now, make the second Axios request inside this block
@@ -42,6 +42,24 @@ function Home() {
           .then((res) => {
             console.log("User Scores API Response:", res.data);
             setUserScores(res.data.data);
+  
+            // Extract the ID from the first item in the response
+            const entityId = res.data.data.length > 0 ? res.data.data[0].id : null;
+  
+            // Make the API call to update seen_datetime
+            if (entityId) {
+              axios.get(`http://localhost:1337/api/views/${entityId}/seen`, {}, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                },
+              })
+                .then((seenResponse) => {
+                  console.log("Seen API Response:", seenResponse.data);
+                })
+                .catch((seenError) => {
+                  console.error("Seen API Error:", seenError);
+                });
+            }
           })
           .catch((err) => {
             console.error("User Scores API Error:", err);
@@ -51,7 +69,6 @@ function Home() {
         console.error("Error fetching user data:", error);
       });
   };
-  
 
   const getData = () => {
     axios

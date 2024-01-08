@@ -6,6 +6,7 @@ module.exports = createCoreController('api::view.view', ({strapi}) => ({
 
     async seen(ctx) {
         const entityId = ctx.params.id;
+        const user = ctx.state.user.username;
      
         try {
           let views = await strapi.entityService.findOne('api::view.view', entityId)
@@ -14,7 +15,7 @@ module.exports = createCoreController('api::view.view', ({strapi}) => ({
                 seen_datetime : new Date(),
             },
         }),
-          ctx.body = {};
+          ctx.body = `seen_datetime UPDATE your_username ${user}`;
         } catch (err) {
           ctx.body = err;
         }
