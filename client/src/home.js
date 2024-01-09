@@ -11,17 +11,50 @@ function Home() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [userScores, setUserScores] = useState([]);
   const [username, setUsername] = useState(null);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const authToken = localStorage.getItem("authToken");
+
+    if (authToken) {
+      axios
+        .get("http://localhost:1337/api/users/me", {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        })
+        .then((response) => {
+          setUserData(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, []);
 
   const handleClose = () => setShow(false);
 
   const handleShow = (item) => {
+    const authToken = localStorage.getItem("authToken");
+
+    if (!authToken) {
+ 
+      window.location.href = '/login'; 
+      return;
+    }
+
+
+    if (userData && userData.role && userData.role.type !== "student") {
+   
+      window.location.href = '/login'; 
+      return;
+    }
+
     setSelectedItem(item);
     setShow(true);
 
     const subjectName = item.attributes.name;
     let username; 
-
-    const authToken = localStorage.getItem("authToken");
 
     axios
       .get("http://localhost:1337/api/users/me", {
@@ -32,8 +65,6 @@ function Home() {
       .then((response) => {
         username = response.data.username; 
         setUsername(username); 
-        console.log(response.data.username);
-
 
         axios
           .get(
@@ -78,6 +109,7 @@ function Home() {
         console.error("Error fetching user data:", error);
       });
   };
+
   const handleAcknowledge = () => {
     const authToken = localStorage.getItem("authToken");
 
@@ -114,8 +146,6 @@ function Home() {
 
     handleClose(); 
   };
-  
-  
 
   const getData = () => {
     axios
