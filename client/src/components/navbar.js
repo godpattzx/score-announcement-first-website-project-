@@ -54,15 +54,9 @@ const NavigationBar = () => {
               ) : (
                 <></>
               )
-            ) : (
-              <Button
-                className="mr-10 button"
-                variant="outline-primary"
-                href="/login"
-              >
-                Login
-              </Button>
-            )}
+            ) : null
+             
+            }
           </Nav>
           <Nav className="right-align">
             {userData ? (

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import axios from "axios";
 import "./home.css";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Home() {
   const [show, setShow] = useState(false);
@@ -15,12 +17,12 @@ function Home() {
   const handleShow = (item) => {
     setSelectedItem(item);
     setShow(true);
-  
+
     const subjectName = item.attributes.name;
-    let username; // Declare the variable here
-  
+    let username; 
+
     const authToken = localStorage.getItem("authToken");
-  
+
     axios
       .get("http://localhost:1337/api/users/me", {
         headers: {
@@ -28,31 +30,38 @@ function Home() {
         },
       })
       .then((response) => {
-        username = response.data.username; // Assign the value here
-        setUsername(username); // Set the state
+        username = response.data.username; 
+        setUsername(username); 
         console.log(response.data.username);
-  
-        // Now, make the second Axios request inside this block
+
+
         axios
-          .get(`http://localhost:1337/api/views?filters[subject][name][$eq]=${subjectName}&filters[student_id][$eq]=${username}`, {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          })
+          .get(
+            `http://localhost:1337/api/views?filters[subject][name][$eq]=${subjectName}&filters[student_id][$eq]=${username}`,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          )
           .then((res) => {
             console.log("User Scores API Response:", res.data);
             setUserScores(res.data.data);
-  
-            // Extract the ID from the first item in the response
-            const entityId = res.data.data.length > 0 ? res.data.data[0].id : null;
-  
-            // Make the API call to update seen_datetime
+
+            const entityId =
+              res.data.data.length > 0 ? res.data.data[0].id : null;
+
             if (entityId) {
-              axios.get(`http://localhost:1337/api/views/${entityId}/seen`, {}, {
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                },
-              })
+              axios
+                .get(
+                  `http://localhost:1337/api/views/${entityId}/seen`,
+                  {},
+                  {
+                    headers: {
+                      Authorization: `Bearer ${authToken}`,
+                    },
+                  }
+                )
                 .then((seenResponse) => {
                   console.log("Seen API Response:", seenResponse.data);
                 })
@@ -69,6 +78,44 @@ function Home() {
         console.error("Error fetching user data:", error);
       });
   };
+  const handleAcknowledge = () => {
+    const authToken = localStorage.getItem("authToken");
+
+    if (selectedItem) {
+      const entityId = userScores.length > 0 ? userScores[0].id : null;
+
+      if (entityId) {
+        axios
+          .get(
+            `http://localhost:1337/api/views/${entityId}/ack`,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          )
+          .then((acknowledgeResponse) => {
+            console.log("Acknowledge API Response:", acknowledgeResponse.data);
+
+            toast.success("You have acknowledged your score successfully!", {
+              position: toast.POSITION.TOP_CENTER,
+            });
+
+          })
+          .catch((acknowledgeError) => {
+            console.error("Acknowledge API Error:", acknowledgeError);
+
+            toast.error("Error acknowledging your score. Please try again.", {
+              position: toast.POSITION.TOP_CENTER,
+            });
+          });
+      }
+    }
+
+    handleClose(); 
+  };
+  
+  
 
   const getData = () => {
     axios
@@ -146,11 +193,17 @@ function Home() {
                     <p>Score: {score.attributes.score}</p>
                   </div>
                 ))}
+                <Button 
+                variant="secondary" 
+                className="acknowledge-button"
+                onClick={handleAcknowledge} >
+                  Acknowledge
+                </Button>
               </div>
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
+            <Button variant="secondary" onClick={handleClose} >
               Close
             </Button>
           </Modal.Footer>

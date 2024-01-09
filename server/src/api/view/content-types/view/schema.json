@@ -36,6 +36,9 @@
     },
     "student_id": {
       "type": "string"
+    },
+    "ack_datetime": {
+      "type": "datetime"
     }
   }
 }

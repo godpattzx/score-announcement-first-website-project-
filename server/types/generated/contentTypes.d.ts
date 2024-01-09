@@ -433,6 +433,7 @@ export interface ApiViewView extends Schema.CollectionType {
       'api::subject.subject'
     >;
     student_id: Attribute.String;
+    ack_datetime: Attribute.DateTime;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
