@@ -38,17 +38,10 @@ function Home() {
     const authToken = localStorage.getItem("authToken");
 
     if (!authToken) {
- 
       window.location.href = '/login'; 
       return;
     }
-
-
-    if (userData && userData.role && userData.role.type !== "student") {
-   
-      window.location.href = '/login'; 
-      return;
-    }
+  
 
     setSelectedItem(item);
     setShow(true);
@@ -129,9 +122,17 @@ function Home() {
           .then((acknowledgeResponse) => {
             console.log("Acknowledge API Response:", acknowledgeResponse.data);
 
-            toast.success("You have acknowledged your score successfully!", {
-              position: toast.POSITION.TOP_CENTER,
-            });
+           
+              toast.success("You have acknowledged your score successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: false,
+                progress: undefined,
+                theme: "colored",
+                });
 
           })
           .catch((acknowledgeError) => {

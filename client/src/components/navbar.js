@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Button, Modal } from "react-bootstrap";
 import axios from "axios";
 import "./navbar.css";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const NavigationBar = () => {
   const [userData, setUserData] = useState(null);

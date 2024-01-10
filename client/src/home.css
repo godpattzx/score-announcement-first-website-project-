@@ -116,11 +116,5 @@ body {
     width: 350px; 
 }
 
-.Toastify__toast {
-    background-color: #4caf50; 
-    color: #fff; 
-    font-size: 16px; 
-    border: 1px solid #ccc; 
-    border-radius: 5px; 
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-}
+
+
