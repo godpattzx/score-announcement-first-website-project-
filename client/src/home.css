@@ -108,7 +108,7 @@ body {
     background-color: #28a745; 
     color: #fff; 
     margin-top: 5px; 
-    float:left; 
+    float:right; 
     margin-bottom: 5px;
 }
 
@@ -116,5 +116,26 @@ body {
     width: 350px; 
 }
 
+model_box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+.modal-dialog {
+        max-width: 600px;
+}
+  
+.status-container {
+    text-align: right;
+    flex:1;
+}
+.scores {
+    flex: 1; 
+  }
+  
 
+  
 
+  

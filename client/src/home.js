@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import axios from "axios";
-import "./home.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./home.css";
 
 function Home() {
   const [show, setShow] = useState(false);
@@ -12,6 +12,7 @@ function Home() {
   const [userScores, setUserScores] = useState([]);
   const [username, setUsername] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [acknowledged, setAcknowledged] = useState(false); 
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -32,22 +33,24 @@ function Home() {
     }
   }, []);
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setShow(false);
+    setAcknowledged(false); 
+  };
 
   const handleShow = (item) => {
     const authToken = localStorage.getItem("authToken");
 
     if (!authToken) {
-      window.location.href = '/login'; 
+      window.location.href = "/login";
       return;
     }
-  
 
     setSelectedItem(item);
     setShow(true);
 
     const subjectName = item.attributes.name;
-    let username; 
+    let username;
 
     axios
       .get("http://localhost:1337/api/users/me", {
@@ -56,8 +59,8 @@ function Home() {
         },
       })
       .then((response) => {
-        username = response.data.username; 
-        setUsername(username); 
+        username = response.data.username;
+        setUsername(username);
 
         axios
           .get(
@@ -72,26 +75,12 @@ function Home() {
             console.log("User Scores API Response:", res.data);
             setUserScores(res.data.data);
 
-            const entityId =
-              res.data.data.length > 0 ? res.data.data[0].id : null;
+            const acknowledgedScore = res.data.data.find(
+              (score) => score.attributes.ack
+            );
 
-            if (entityId) {
-              axios
-                .get(
-                  `http://localhost:1337/api/views/${entityId}/seen`,
-                  {},
-                  {
-                    headers: {
-                      Authorization: `Bearer ${authToken}`,
-                    },
-                  }
-                )
-                .then((seenResponse) => {
-                  console.log("Seen API Response:", seenResponse.data);
-                })
-                .catch((seenError) => {
-                  console.error("Seen API Error:", seenError);
-                });
+            if (acknowledgedScore) {
+              setAcknowledged(true); 
             }
           })
           .catch((err) => {
@@ -106,7 +95,7 @@ function Home() {
   const handleAcknowledge = () => {
     const authToken = localStorage.getItem("authToken");
 
-    if (selectedItem) {
+    if (selectedItem && !acknowledged) {
       const entityId = userScores.length > 0 ? userScores[0].id : null;
 
       if (entityId) {
@@ -122,8 +111,9 @@ function Home() {
           .then((acknowledgeResponse) => {
             console.log("Acknowledge API Response:", acknowledgeResponse.data);
 
-           
-              toast.success("You have acknowledged your score successfully!", {
+            toast.success(
+              '"You have acknowledged your score successfully!"',
+              {
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -132,8 +122,10 @@ function Home() {
                 draggable: false,
                 progress: undefined,
                 theme: "colored",
-                });
+              }
+            );
 
+            setAcknowledged(true); 
           })
           .catch((acknowledgeError) => {
             console.error("Acknowledge API Error:", acknowledgeError);
@@ -145,7 +137,7 @@ function Home() {
       }
     }
 
-    handleClose(); 
+    handleClose();
   };
 
   const getData = () => {
@@ -210,36 +202,52 @@ function Home() {
         </div>
       </div>
       <div className="model_box">
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Score Details</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {selectedItem && (
-              <div>
-                <p>Course Code: {selectedItem.attributes.CourseCode}</p>
-                <p>Subject: {selectedItem.attributes.name}</p>
-                {userScores.map((score) => (
-                  <div key={score.id}>
-                    <p>Score: {score.attributes.score}</p>
-                  </div>
-                ))}
-                <Button 
-                variant="secondary" 
-                className="acknowledge-button"
-                onClick={handleAcknowledge} >
-                  Acknowledge
-                </Button>
-              </div>
-            )}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose} >
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
+  <Modal show={show} onHide={handleClose}>
+    <Modal.Header closeButton>
+      <Modal.Title>Score Details</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+  {selectedItem && (
+    <div className="modal-body-content">
+      <div className="header">
+        <p>Course Code: {selectedItem.attributes.CourseCode}</p>
+        <p>Subject: {selectedItem.attributes.name}</p>
       </div>
+ 
+      <div className="scores">
+  {userScores.map((score) => (
+    <div key={score.id} className="score-item">
+      
+      <p className="score-value" style={{ background: '#FFFF00', fontSize: '25px' }}> Score:       {score.attributes.score}
+      </p>
+    </div>
+  ))}
+  <p>Status: {acknowledged ? '" Score Acknowledged "' : '" Not Acknowledged "'}</p>
+
+  <div className="status-container">
+    <Button
+      variant="secondary"
+      className="acknowledge-button"
+      onClick={handleAcknowledge}
+      disabled={acknowledged}
+    >
+      {acknowledged ? "Score Acknowledged" : "Acknowledge"}
+    </Button>
+  </div>
+</div>
+
+    </div>
+  )}
+</Modal.Body>
+
+
+    <Modal.Footer>
+      <Button variant="secondary" onClick={handleClose}>
+        Close
+      </Button>
+    </Modal.Footer>
+  </Modal>
+</div>
     </div>
   );
 }
