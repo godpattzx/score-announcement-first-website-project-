@@ -10,8 +10,8 @@ import "./loginPage.css";
 import BackgroundImage from "../image/image-from-rawpixel-id-2909890-jpeg.jpg";
 import Logo from "../image/psu1.png";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { GoogleLogin,GoogleLogout } from 'react-google-login'
-import { gapi } from 'gapi-script'
+
+
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -21,18 +21,7 @@ const LoginForm = () => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState([]);
-  const clientId = "447030836033-m5vcgu9ju36an4onbb5tipfdlntekhs1.apps.googleusercontent.com"
-  
-  useEffect(() =>{
-    const initClient = () => {
-      gapi.client.init({
-        clientId: clientId,
-        score: ''
-      })
-    }
-    gapi.load("client:auth2", initClient)
-  },[]);
-
+ 
 
 
   const logOut = () => {
@@ -83,7 +72,7 @@ const LoginForm = () => {
         if (result.data.role.name === "Student") {
           navigate("/student");
         } else if (result.data.role.name === "Staff") {
-          navigate("/student");
+          navigate("/staff");
         }
         setLoading(false);
         toast.success('Login success!', {
@@ -96,6 +85,7 @@ const LoginForm = () => {
           progress: undefined,
           theme: "colored",
           });
+          console.log("User Information:", result.data);
       }
     } catch (e) {
       console.log(e);
@@ -103,6 +93,7 @@ const LoginForm = () => {
       setShow(true);
     } finally {
       setLoading(false);
+  
     }
   };
 
@@ -182,13 +173,7 @@ const LoginForm = () => {
             Guest Login
           </Button>
         </div>
-        <GoogleLogin
-          clientId={clientId}
-          buttonText="Sign in with Google"
-  
-          cookiePolicy={'single_host_origin'}
-          isSignedIn= {true}
-        />
+        
       </Form>
       {/* Footer */}
       <div className="w-100 mb-2 position-absolute bottom-0 start-50 translate-middle-x text-white text-center">
