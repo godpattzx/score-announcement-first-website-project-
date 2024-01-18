@@ -50,17 +50,7 @@ function Home() {
     setShow(true);
 
     const subjectName = item.attributes.name;
-    let username;
-
-    axios
-      .get("http://localhost:1337/api/users/me", {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      })
-      .then((response) => {
-        username = response.data.username;
-        setUsername(username);
+    const username = localStorage.getItem("username");
 
         axios
           .get(
@@ -86,10 +76,7 @@ function Home() {
           .catch((err) => {
             console.error("User Scores API Error:", err);
           });
-      })
-      .catch((error) => {
-        console.error("Error fetching user data:", error);
-      });
+
   };
 
   const handleAcknowledge = () => {
@@ -135,22 +122,16 @@ function Home() {
   };
 
   const getData = () => {
+    const username = localStorage.getItem("username");
     const authToken = localStorage.getItem("authToken");
-  
-    let username;
-  
-    axios
-      .get("http://localhost:1337/api/users/me", {
+    axios.get(
+      `http://localhost:1337/api/subjects?populate=*&filters[views][student_id][$eq]=${username}`,
+      {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      })
-      .then((response) => {
-        username = response.data.username;
-        setUsername(username);
-  
-        axios
-          .get(`http://localhost:1337/api/subjects?populate=*&filters[views][student_id][$eq]=${username}`)
+      }
+    )
           .then((res) => {
             console.log("API Response Subjects:", res.data);
             setData(res.data.data);
@@ -158,12 +139,9 @@ function Home() {
           .catch((err) => {
             console.log("API Error:", err);
           });
-      })
-      .catch((err) => {
-        console.log("API Error:", err);
-      });
-  };
   
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -229,32 +207,20 @@ function Home() {
                 <div className="scores">
                   {userScores.map((score) => (
                     <div key={score.id} className="score-item">
-                      <p
-                        className="score-value"
-                        style={{ background: "#FFFF00", fontSize: "25px" }}
-                      >
-                        {" "}
+                      <p>
                         Score: {score.attributes.score}
+                      </p>
+                      <p
+                        className={`status ${
+                          score.attributes.score >= 50 ? "pass" : "fail"
+                        }`}
+                      >
+                        {score.attributes.score >= 50
+                          ? "Status: Passed"
+                          : "Status: Failed"}
                       </p>
                     </div>
                   ))}
-                  <p>
-                    Status:{" "}
-                    {acknowledged
-                      ? '" Score Acknowledged "'
-                      : '" Not Acknowledged "'}
-                  </p>
-
-                  <div className="status-container">
-                    <Button
-                      variant="secondary"
-                      className="acknowledge-button"
-                      onClick={handleAcknowledge}
-                      disabled={acknowledged}
-                    >
-                      {acknowledged ? "Score Acknowledged" : "Acknowledge"}
-                    </Button>
-                  </div>
                 </div>
               </div>
             )}
@@ -263,6 +229,13 @@ function Home() {
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
               Close
+            </Button>
+            <Button
+              variant="outline-secondary"
+              onClick={handleAcknowledge}
+              disabled={acknowledged}
+            >
+              {acknowledged ? "Score Acknowledged" : "Acknowledge"}
             </Button>
           </Modal.Footer>
         </Modal>

@@ -21,7 +21,6 @@ const LoginForm = () => {
   const [submitEnabled, setSubmitEnabled] = useState(true);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isLoggingInWithGoogle, setIsLoggingInWithGoogle] = useState(false);
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
@@ -43,6 +42,7 @@ const LoginForm = () => {
       });
       axiosConfig.jwt = result.data.jwt;
       localStorage.setItem("authToken", result.data.jwt);
+      localStorage.setItem("username", result.data.user.username);
 
       result = await axios.get(
         "http://localhost:1337/api/users/me?populate=role"

@@ -1,141 +1,154 @@
 body {
-    background-color: #f5f5f5; 
-    color: #333; 
-}
-
-.container {
-    margin-top: 50px; 
-}
-
-.table {
-    background-color: #fff; 
-    border-radius: 8px; 
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
-}
-
-.table thead th {
-    background-color: #e0e0e0; 
-}
-
-.table tbody td {
-    border-bottom: 1px solid #ddd; 
-}
-
-.model_box {
-    margin-top: 20px; 
-}
-
-.table-column-button {
+    background-color: #DCF2F1;
+    color: #333;
+  }
+  
+  .container {
+    margin-top: 50px;
+  }
+  
+  .table {
+    background-color: #cb1827;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .table thead th {
+    background-color: #343a40; /* Dark Gray */
+    color: #fff;
+  }
+  
+ 
+  
+  .model_box {
+    margin-top: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.button-view-score {
-    background-color: #007bff; 
-    color: #fff; 
-    border: none; 
-    padding: 8px 16px; 
-    border-radius: 4px; 
+  }
+  
+  .table-column-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .button-view-score {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease; 
-}
-
-.button-view-score:hover {
-    background-color: #0056b3; 
-}
-
-.text-center {
+    transition: background-color 0.3s ease;
+  }
+  
+  .button-view-score:hover {
+    background-color: #0056b3;
+  }
+  
+  .text-center {
     text-align: center;
-}
-
-.container {
-    background-color: #FDF5E6; 
+  }
+  
+  .container {
+    background-color: #DCF2F1; /* Light Goldenrod Yellow */
     padding: 20px;
     border-radius: 10px;
     margin-top: 20px;
-}
-
-.row {
+  }
+  
+  .row {
     margin-bottom: 20px;
-}
-
-.table {
-    background-color: #FFF8DC; 
+  }
+  
+  .table {
+    background-color: #fff8dc; /* Light Goldenrod Yellow */
     border-radius: 10px;
-}
-
-.table td,
-.table th {
+  }
+  
+  .table td,
+  .table th {
     padding: 15px;
-}
-
-.table-bordered {
-    border-color: #CD8D7A; 
-}
-
-.modal {
-    background-color: #FDF5E6; 
-}
-
-.modal-content {
-    border: 1px solid #CD8D7A; 
+  }
+  
+  .table-bordered {
+    border-color: #7FC7D9; /* Indian Red */
+  }
+  
+  .modal {
+    background-color: #e9e6fd; /* Light Goldenrod Yellow */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-content {
+    border: 1px solid #cd8d7a; /* Indian Red */
     border-radius: 10px;
-}
-
-.modal-footer button {
-    background-color: #CD8D7A; 
-    color: #FFF; 
-}
-
-.model_box {
-    background-color: #FDF5E6; 
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 20px;
-}
-
-.button-view-score {
-    background-color: #CD8D7A; 
-    color: #FFF; 
-}
-
-.table-column-button {
-    margin-left: 10px;
-}
-
-.acknowledge-button {
-    background-color: #28a745; 
-    color: #fff; 
-    margin-top: 5px; 
-    float:right; 
+    background-color: #fdf5e6; /* Light Goldenrod Yellow */
+  }
+  
+  .modal-footer button {
+    background-color: #cd8d7a; /* Indian Red */
+    color: #fff;
+  }
+  
+  
+  
+  .button-view-score {
+    background-color: #cd8d7a; /* Indian Red */
+    color: #fff;
+  }
+  
+ 
+  
+  .acknowledge-button {
+    background-color: #28a745; /* Green */
+    color: #fff;
+    margin-top: 5px;
+    float: right;
     margin-bottom: 5px;
-}
-
-.Toastify__toast-container {
-    width: 350px; 
-}
-
-model_box {
+  }
+  
+  .Toastify__toast-container {
+    width: 350px;
+  }
+  
+  model_box {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
   }
   
-.modal-dialog {
-        max-width: 600px;
-}
-  
-.status-container {
-    text-align: right;
-    flex:1;
-}
-.scores {
-    flex: 1; 
+  .modal-dialog {
+    max-width: 600px;
+    background-color: #fdf5e6; /* Light Goldenrod Yellow */
   }
   
-
+  .status-container {
+    text-align: right;
+    flex: 1;
+  }
   
-
+  .scores {
+    flex: 1;
+  }
+  
+  .score-value {
+    font-weight: bolder;
+  }
+  
+  .status {
+    font-weight: bold;
+  }
+  
+  .pass {
+    color: green;
+  }
+  
+  .fail {
+    color: red;
+  }
   

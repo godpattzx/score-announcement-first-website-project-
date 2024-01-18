@@ -1,11 +1,11 @@
 :root {
-  --navbar-bg-color: #DBCC95;
-  --navbar-text-color: #000000;
-  --navbar-text-hover-color: #CD8D7A;
-  --navbar-brand-color: #000000;
-  --navbar-brand-hover-color: #CD8D7A;
-  --navbar-link-underline-color: #CD8D7A;
-  --navbar-link-underline-hover-color: #CD8D7A;
+  --navbar-bg-color: #7FC7D9;
+  --navbar-text-color: #0F1035;
+  --navbar-text-hover-color: #365486;
+  --navbar-brand-color: #0F1035;
+  --navbar-brand-hover-color: #365486;
+  --navbar-link-underline-color: #365486;
+  --navbar-link-underline-hover-color: #365486;
 }
 
 body {

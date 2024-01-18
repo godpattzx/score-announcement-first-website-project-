@@ -39,6 +39,7 @@ const NavigationBar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
+    localStorage.removeItem("username");
     window.location.href = "/login";
   };
 
