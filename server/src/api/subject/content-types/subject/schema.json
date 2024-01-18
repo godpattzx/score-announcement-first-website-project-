@@ -39,6 +39,14 @@
       "relation": "oneToMany",
       "target": "api::view.view",
       "mappedBy": "subject"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "draft"
     }
   }
 }

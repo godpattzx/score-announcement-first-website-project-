@@ -1,196 +1,192 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal } from "react-bootstrap";
+import { Button, Modal, Tab, Tabs } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./home.css";
 
-function Home() {
+function MainComponent() {
   const [show, setShow] = useState(false);
-  const [data, setData] = useState([]);
+  const [dataFromApi1, setDataFromApi1] = useState([]);
+  const [dataFromApi2, setDataFromApi2] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [userScores, setUserScores] = useState([]);
-  const [username, setUsername] = useState(null);
-  const [userData, setUserData] = useState(null);
   const [acknowledged, setAcknowledged] = useState(false);
 
   useEffect(() => {
-    const authToken = localStorage.getItem("authToken");
-
-    if (authToken) {
-      axios
-        .get("http://localhost:1337/api/users/me", {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        })
-        .then((response) => {
-          setUserData(response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        });
-    }
-  }, []);
-
-  const handleClose = () => {
-    setShow(false);
-    setAcknowledged(false);
-  };
-
-  const handleShow = (item) => {
-    const authToken = localStorage.getItem("authToken");
-
-    if (!authToken) {
-      window.location.href = "/login";
-      return;
-    }
-
-    setSelectedItem(item);
-    setShow(true);
-
-    const subjectName = item.attributes.name;
-    const username = localStorage.getItem("username");
-
-        axios
-          .get(
-            `http://localhost:1337/api/views?filters[subject][name][$eq]=${subjectName}&filters[student_id][$eq]=${username}`,
+    const fetchData = async () => {
+      try {
+        const username = localStorage.getItem("username");
+        const authToken = localStorage.getItem("authToken");
+        const [api1Response, api2Response] = await Promise.all([
+          axios.get("http://localhost:1337/api/subjects"),
+          axios.get(
+            `http://localhost:1337/api/subjects?populate=*&filters[views][student_id][$eq]=${username}`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
               },
             }
-          )
-          .then((res) => {
-            console.log("User Scores API Response:", res.data);
-            setUserScores(res.data.data);
+          ),
+        ]);
 
-            const acknowledgedScore = res.data.data.find(
-              (score) => score.attributes.ack
-            );
+        console.log("API 1 Response:", api1Response.data);
+        console.log("API 2 Response:", api2Response.data);
 
-            if (acknowledgedScore) {
-              setAcknowledged(true);
-            }
-          })
-          .catch((err) => {
-            console.error("User Scores API Error:", err);
-          });
-
-  };
-
-  const handleAcknowledge = () => {
-    const authToken = localStorage.getItem("authToken");
-
-    if (selectedItem && !acknowledged) {
-      const entityId = userScores.length > 0 ? userScores[0].id : null;
-
-      if (entityId) {
-        axios
-          .get(`http://localhost:1337/api/views/${entityId}/ack`, {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          })
-          .then((acknowledgeResponse) => {
-            console.log("Acknowledge API Response:", acknowledgeResponse.data);
-
-            toast.success('"You have acknowledged your score successfully!"', {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: false,
-              progress: undefined,
-              theme: "colored",
-            });
-
-            setAcknowledged(true);
-          })
-          .catch((acknowledgeError) => {
-            console.error("Acknowledge API Error:", acknowledgeError);
-
-            toast.error("Error acknowledging your score. Please try again.", {
-              position: toast.POSITION.TOP_CENTER,
-            });
-          });
+        setDataFromApi1(api1Response.data.data);
+        setDataFromApi2(api2Response.data.data);
+      } catch (error) {
+        console.error("API Error:", error);
+        toast.error("Error fetching data. Please try again.", {
+          position: toast.POSITION.TOP_CENTER,
+        });
       }
-    }
+    };
 
-    handleClose();
-  };
-
-  const getData = () => {
-    const username = localStorage.getItem("username");
-    const authToken = localStorage.getItem("authToken");
-    axios.get(
-      `http://localhost:1337/api/subjects?populate=*&filters[views][student_id][$eq]=${username}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
-    )
-          .then((res) => {
-            console.log("API Response Subjects:", res.data);
-            setData(res.data.data);
-          })
-          .catch((err) => {
-            console.log("API Error:", err);
-          });
-  
-  };
-
-  useEffect(() => {
-    getData();
+    fetchData();
   }, []);
+
+  const handleShow = (item) => {
+    setAcknowledged(false);
+    setSelectedItem(item);
+    setShow(true);
+  };
+
+  const handleAcknowledge = async () => {
+    try {
+      const authToken = localStorage.getItem("authToken");
+
+      if (selectedItem && !acknowledged) {
+        const entityId = userScores.length > 0 ? userScores[0].id : null;
+
+        if (entityId) {
+          const acknowledgeResponse = await axios.post(
+            `http://localhost:1337/api/views/${entityId}/ack`,
+            null,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          );
+
+          console.log("Acknowledge API Response:", acknowledgeResponse.data);
+
+          toast.success("You have acknowledged your score successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: false,
+            progress: undefined,
+            theme: "colored",
+          });
+
+          setAcknowledged(true);
+        }
+      }
+    } catch (error) {
+      console.error("Acknowledge API Error:", error);
+
+      toast.error("Error acknowledging your score. Please try again.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    } finally {
+      handleClose();
+    }
+  };
+
+  const handleClose = () => {
+    setShow(false);
+  };
 
   return (
     <div className="container">
-      <div className="row">
-        <div className="table-responsive">
-          <table className="table table-striped table-hover table-bordered">
-            <thead className="thead-dark">
-              <tr>
-                <th>#</th>
-                <th>Course Code</th>
-                <th>Subject</th>
-                <th>Description</th>
-                <th>Lecturer</th>
-                <th className="text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(data) && data.length > 0 ? (
-                data.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.id}</td>
-                    <td>{item.attributes.CourseCode}</td>
-                    <td>{item.attributes.name}</td>
-                    <td>
-                      {item.attributes.description[0]?.children[0]?.text || ""}
-                    </td>
-                    <td>{item.attributes.Lecturer}</td>
-                    <td className="table-column-button">
-                      <Button
-                        className="button-view-score"
-                        onClick={() => handleShow(item)}
-                      >
-                        View Score
-                      </Button>
-                    </td>
+      <Tabs defaultActiveKey="home" id="main-tabs" className="mb-3">
+        <Tab eventKey="home" title="Home">
+          <div className="row">
+            <div className="table-responsive">
+              <table className="table table-striped table-hover table-bordered">
+                <thead className="thead-dark">
+                  <tr>
+                    <th>#</th>
+                    <th>Course Code</th>
+                    <th>Subject</th>
+                    {/* Add more table headers as needed */}
+                    <th>Description</th>
+                    <th>Lecturer</th>
+                    <th className="text-center">Action</th>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6">No data available</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                </thead>
+                <tbody>
+                  {dataFromApi1.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.id}</td>
+                      <td>{item.attributes.CourseCode}</td>
+                      <td>{item.attributes.name}</td>
+                      <td>
+                        {item.attributes.description[0]?.children[0]?.text ||
+                          ""}
+                      </td>
+                      <td>{item.attributes.Lecturer}</td>
+                      <td className="table-column-button">
+                        <Button
+                          className="button-view-score"
+                          onClick={() => handleShow(item)}
+                        >
+                          View Score
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Tab>
+        <Tab eventKey="view" title="View">
+          <div className="row">
+            <div className="table-responsive">
+              <table className="table table-striped table-hover table-bordered">
+                <thead className="thead-dark">
+                  <tr>
+                    <th>#</th>
+                    <th>Course Code</th>
+                    <th>Subject</th>
+                    {/* Add more table headers as needed */}
+                    <th>Description</th>
+                    <th>Lecturer</th>
+                    <th className="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataFromApi2.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.id}</td>
+                      <td>{item.attributes.CourseCode}</td>
+                      <td>{item.attributes.name}</td>
+                      <td>
+                        {item.attributes.description[0]?.children[0]?.text ||
+                          ""}
+                      </td>
+                      <td>{item.attributes.Lecturer}</td>
+                      <td className="table-column-button">
+                        <Button
+                          className="button-view-score"
+                          onClick={() => handleShow(item)}
+                        >
+                          View Score
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Tab>
+      </Tabs>
       <div className="model_box">
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton>
@@ -205,11 +201,9 @@ function Home() {
                 </div>
 
                 <div className="scores">
-                  {userScores.map((score) => (
+                  {selectedItem.attributes.views.data.map((score) => (
                     <div key={score.id} className="score-item">
-                      <p>
-                        Score: {score.attributes.score}
-                      </p>
+                      <p>Score: {score.attributes.score}</p>
                       <p
                         className={`status ${
                           score.attributes.score >= 50 ? "pass" : "fail"
@@ -225,23 +219,23 @@ function Home() {
               </div>
             )}
           </Modal.Body>
-
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-              Close
-            </Button>
-            <Button
-              variant="outline-secondary"
-              onClick={handleAcknowledge}
-              disabled={acknowledged}
-            >
-              {acknowledged ? "Score Acknowledged" : "Acknowledge"}
-            </Button>
-          </Modal.Footer>
+  <Button variant="secondary" onClick={handleClose}>
+    Close
+  </Button>
+  <Button
+    variant="outline-secondary"
+    onClick={handleAcknowledge}
+    disabled={acknowledged || (selectedItem && selectedItem.attributes.views.data[0]?.attributes.ack)}
+  >
+    {acknowledged ? "Score Acknowledged" : "Acknowledge"}
+  </Button>
+</Modal.Footer>
+
         </Modal>
       </div>
     </div>
   );
 }
 
-export default Home;
+export default MainComponent;

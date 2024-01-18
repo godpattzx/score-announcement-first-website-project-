@@ -389,6 +389,8 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
       'oneToMany',
       'api::view.view'
     >;
+    status: Attribute.Enumeration<['draft', 'published']> &
+      Attribute.DefaultTo<'draft'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
