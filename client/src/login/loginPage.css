@@ -49,9 +49,42 @@ body{
       transform: translate(0, 0);
     }
   }
-
-
-
   
+  .divider {
+    position: relative;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 
+  }
   
+  .divider::before,
+  .divider::after {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 1px;
+    background-color: #ccc;
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+  
+  .divider::before {
+    left: 0;
+  }
+  
+  .divider::after {
+    right: 0;
+  }
+  
+  .divider p {
+    position: relative;
+    z-index: 1;
+    background-color: #ffffff;
+    padding: 0 10px;
+    margin: 0;
+    font-size: smaller;
+  }
