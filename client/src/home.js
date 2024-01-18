@@ -12,7 +12,7 @@ function Home() {
   const [userScores, setUserScores] = useState([]);
   const [username, setUsername] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [acknowledged, setAcknowledged] = useState(false); 
+  const [acknowledged, setAcknowledged] = useState(false);
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -35,7 +35,7 @@ function Home() {
 
   const handleClose = () => {
     setShow(false);
-    setAcknowledged(false); 
+    setAcknowledged(false);
   };
 
   const handleShow = (item) => {
@@ -80,7 +80,7 @@ function Home() {
             );
 
             if (acknowledgedScore) {
-              setAcknowledged(true); 
+              setAcknowledged(true);
             }
           })
           .catch((err) => {
@@ -100,32 +100,26 @@ function Home() {
 
       if (entityId) {
         axios
-          .get(
-            `http://localhost:1337/api/views/${entityId}/ack`,
-            {
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-              },
-            }
-          )
+          .get(`http://localhost:1337/api/views/${entityId}/ack`, {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          })
           .then((acknowledgeResponse) => {
             console.log("Acknowledge API Response:", acknowledgeResponse.data);
 
-            toast.success(
-              '"You have acknowledged your score successfully!"',
-              {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: false,
-                progress: undefined,
-                theme: "colored",
-              }
-            );
+            toast.success('"You have acknowledged your score successfully!"', {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: false,
+              progress: undefined,
+              theme: "colored",
+            });
 
-            setAcknowledged(true); 
+            setAcknowledged(true);
           })
           .catch((acknowledgeError) => {
             console.error("Acknowledge API Error:", acknowledgeError);
@@ -141,17 +135,35 @@ function Home() {
   };
 
   const getData = () => {
+    const authToken = localStorage.getItem("authToken");
+  
+    let username;
+  
     axios
-      .get("http://localhost:1337/api/subjects")
-      .then((res) => {
-        console.log("API Response Subjects:", res.data);
-        setData(res.data.data);
+      .get("http://localhost:1337/api/users/me", {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      })
+      .then((response) => {
+        username = response.data.username;
+        setUsername(username);
+  
+        axios
+          .get(`http://localhost:1337/api/subjects?populate=*&filters[views][student_id][$eq]=${username}`)
+          .then((res) => {
+            console.log("API Response Subjects:", res.data);
+            setData(res.data.data);
+          })
+          .catch((err) => {
+            console.log("API Error:", err);
+          });
       })
       .catch((err) => {
         console.log("API Error:", err);
       });
   };
-
+  
   useEffect(() => {
     getData();
   }, []);
@@ -202,52 +214,59 @@ function Home() {
         </div>
       </div>
       <div className="model_box">
-  <Modal show={show} onHide={handleClose}>
-    <Modal.Header closeButton>
-      <Modal.Title>Score Details</Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-  {selectedItem && (
-    <div className="modal-body-content">
-      <div className="header">
-        <p>Course Code: {selectedItem.attributes.CourseCode}</p>
-        <p>Subject: {selectedItem.attributes.name}</p>
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Score Details</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedItem && (
+              <div className="modal-body-content">
+                <div className="header">
+                  <p>Course Code: {selectedItem.attributes.CourseCode}</p>
+                  <p>Subject: {selectedItem.attributes.name}</p>
+                </div>
+
+                <div className="scores">
+                  {userScores.map((score) => (
+                    <div key={score.id} className="score-item">
+                      <p
+                        className="score-value"
+                        style={{ background: "#FFFF00", fontSize: "25px" }}
+                      >
+                        {" "}
+                        Score: {score.attributes.score}
+                      </p>
+                    </div>
+                  ))}
+                  <p>
+                    Status:{" "}
+                    {acknowledged
+                      ? '" Score Acknowledged "'
+                      : '" Not Acknowledged "'}
+                  </p>
+
+                  <div className="status-container">
+                    <Button
+                      variant="secondary"
+                      className="acknowledge-button"
+                      onClick={handleAcknowledge}
+                      disabled={acknowledged}
+                    >
+                      {acknowledged ? "Score Acknowledged" : "Acknowledge"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Modal.Body>
+
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
- 
-      <div className="scores">
-  {userScores.map((score) => (
-    <div key={score.id} className="score-item">
-      
-      <p className="score-value" style={{ background: '#FFFF00', fontSize: '25px' }}> Score:       {score.attributes.score}
-      </p>
-    </div>
-  ))}
-  <p>Status: {acknowledged ? '" Score Acknowledged "' : '" Not Acknowledged "'}</p>
-
-  <div className="status-container">
-    <Button
-      variant="secondary"
-      className="acknowledge-button"
-      onClick={handleAcknowledge}
-      disabled={acknowledged}
-    >
-      {acknowledged ? "Score Acknowledged" : "Acknowledge"}
-    </Button>
-  </div>
-</div>
-
-    </div>
-  )}
-</Modal.Body>
-
-
-    <Modal.Footer>
-      <Button variant="secondary" onClick={handleClose}>
-        Close
-      </Button>
-    </Modal.Footer>
-  </Modal>
-</div>
     </div>
   );
 }

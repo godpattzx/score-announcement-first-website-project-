@@ -75,33 +75,15 @@ const LoginForm = () => {
       setSubmitEnabled(true);
     }
   };
-  const handleGoogleLoginSuccess = async (credentialResponse) => {
-    try {
-      const decodedToken = jwtDecode(credentialResponse?.credential);
-      console.log(decodedToken);
 
-      // Register the user in Strapi using Axios
-      await axios.post("http://localhost:1337/auth/local/register", {
-        username: decodedToken.email,
-        email: decodedToken.email,
-        password: `${decodedToken.sub}${decodedToken.jti}`, // You may want to generate a more secure password
-      });
-
-      // Redirect or perform other actions after successful registration
-      window.location.href = "/"; // Redirect to the home page, for example
-    } catch (error) {
-      console.error("Error processing Google login:", error);
-    }
-  };
   const handleGoogleLoginClick = () => {
-    // Redirect the user to the Google OAuth 2.0 page
-    window.location.href = "http://localhost:1337/api/connect/google"; // Replace with your actual backend URL
+    window.location.href = "http://localhost:1337/api/connect/google";
   };
 
   return (
     <GoogleOAuthProvider clientId="956646024955-8m429gqtoufr4e2lgri7p9kjmjlpaf53.apps.googleusercontent.com">
       <div
-        className="sign-in__wrapper"
+        className="sign-in__wrapper "
         style={{ backgroundImage: `url(${BackgroundImage})` }}
       >
         <div className="sign-in__backdrop"></div>
@@ -171,16 +153,19 @@ const LoginForm = () => {
           <div className="divider d-flex align-items-center ">
             <p className="text-center mx-3 mb-0">Or</p>
           </div>
-          <div className="d-grid justify-content-center">
-            {
-              <button onClick={handleGoogleLoginClick}>
-                Login with Google
-              </button>
-            }
-          </div>
+          <button
+            type="button"
+            className="login-with-google-btn "
+            onClick={handleGoogleLoginClick}
+          >
+            Sign in with Google
+          </button>
         </Form>
         {/* Footer */}
-        <div className="w-100 mb-2 position-absolute bottom-0 start-50 translate-middle-x text-white text-center">
+        <div
+          className="w-100 mb-2 position-absolute bottom-0 start-50 translate-middle-x text-white text-center"
+          disabled
+        >
           pann-project | &copy;2024
         </div>
       </div>

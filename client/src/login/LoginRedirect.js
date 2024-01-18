@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";  // Change here
+import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify'; 
+
 
 const backendUrl = "http://localhost:1337";
 
@@ -21,22 +26,30 @@ const LoginRedirect = () => {
       })
       .then((res) => res.json())
       .then((res) => {
-        // Successfully logged in with Strapi
-        // Save the jwt for future authenticated requests to Strapi
-        localStorage.setItem("jwt", res.jwt);
+
+        localStorage.setItem("authToken", res.jwt);
         localStorage.setItem("username", res.user.username);
         setText(
           "You have been successfully logged in. You will be redirected in a few seconds..."
         );
 
-        // Redirect to homepage after 3 seconds
-        setTimeout(() => navigate("/"), 3000);  // Change here
+        setTimeout(() => navigate("/student"), 1000);  
+        toast.success("Login success!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+          theme: "colored",
+        });
       })
       .catch((err) => {
         console.log(err);
         setText("An error occurred, please see the developer console.");
       });
-  }, [navigate, location.search]);  // Change here
+  }, [navigate, location.search]); 
 
   return <p>{text}</p>;
 };
