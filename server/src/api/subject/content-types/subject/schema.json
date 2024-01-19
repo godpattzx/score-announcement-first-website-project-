@@ -16,9 +16,6 @@
       "type": "string",
       "required": true
     },
-    "effective_datetime": {
-      "type": "datetime"
-    },
     "description": {
       "type": "blocks"
     },
@@ -47,6 +44,13 @@
         "published"
       ],
       "default": "draft"
+    },
+    "full_score": {
+      "type": "integer",
+      "default": 0
+    },
+    "publish_at": {
+      "type": "datetime"
     }
   }
 }

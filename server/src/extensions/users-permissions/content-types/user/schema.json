@@ -71,11 +71,11 @@
       "target": "api::subject.subject",
       "inversedBy": "staff"
     },
-    "views": {
+    "view": {
       "type": "relation",
-      "relation": "manyToMany",
+      "relation": "manyToOne",
       "target": "api::view.view",
-      "mappedBy": "students"
+      "inversedBy": "students"
     }
   }
 }

@@ -24,9 +24,9 @@
     },
     "students": {
       "type": "relation",
-      "relation": "manyToMany",
+      "relation": "oneToMany",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "views"
+      "mappedBy": "view"
     },
     "subject": {
       "type": "relation",

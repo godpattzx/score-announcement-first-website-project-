@@ -375,7 +375,6 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
   };
   attributes: {
     name: Attribute.String & Attribute.Required;
-    effective_datetime: Attribute.DateTime;
     description: Attribute.Blocks;
     staff: Attribute.Relation<
       'api::subject.subject',
@@ -391,6 +390,8 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
     >;
     status: Attribute.Enumeration<['draft', 'published']> &
       Attribute.DefaultTo<'draft'>;
+    full_score: Attribute.Integer & Attribute.DefaultTo<0>;
+    publish_at: Attribute.DateTime;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -426,7 +427,7 @@ export interface ApiViewView extends Schema.CollectionType {
     ack: Attribute.Boolean & Attribute.DefaultTo<false>;
     students: Attribute.Relation<
       'api::view.view',
-      'manyToMany',
+      'oneToMany',
       'plugin::users-permissions.user'
     >;
     subject: Attribute.Relation<
@@ -748,9 +749,9 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'api::subject.subject'
     >;
-    views: Attribute.Relation<
+    view: Attribute.Relation<
       'plugin::users-permissions.user',
-      'manyToMany',
+      'manyToOne',
       'api::view.view'
     >;
     createdAt: Attribute.DateTime;
@@ -763,47 +764,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'plugin::users-permissions.user',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface PluginPublisherAction extends Schema.CollectionType {
-  collectionName: 'actions';
-  info: {
-    singularName: 'action';
-    pluralName: 'actions';
-    displayName: 'actions';
-  };
-  options: {
-    draftAndPublish: false;
-    comment: '';
-  };
-  pluginOptions: {
-    'content-manager': {
-      visible: false;
-    };
-    'content-type-builder': {
-      visible: false;
-    };
-  };
-  attributes: {
-    executeAt: Attribute.DateTime;
-    mode: Attribute.String;
-    entityId: Attribute.Integer;
-    entitySlug: Attribute.String;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'plugin::publisher.action',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'plugin::publisher.action',
       'oneToOne',
       'admin::user'
     > &
@@ -829,7 +789,6 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
-      'plugin::publisher.action': PluginPublisherAction;
     }
   }
 }

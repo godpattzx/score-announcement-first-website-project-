@@ -12,6 +12,7 @@ function MainComponent() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [userScores, setUserScores] = useState([]);
   const [acknowledged, setAcknowledged] = useState(false);
+  const [isButtonDisabled, setButtonDisabled] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +36,17 @@ function MainComponent() {
 
         setDataFromApi1(api1Response.data.data);
         setDataFromApi2(api2Response.data.data);
+
+   
+        const userScoresResponse = await axios.get(
+          `http://localhost:1337/api/views?filters[student_id][$eq]=${username}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        setUserScores(userScoresResponse.data.data);
       } catch (error) {
         console.error("API Error:", error);
         toast.error("Error fetching data. Please try again.", {
@@ -49,7 +61,28 @@ function MainComponent() {
   const handleShow = (item) => {
     setAcknowledged(false);
     setSelectedItem(item);
-    setShow(true);
+
+    if (item.attributes.publishedAt) {
+      const currentTime = new Date();
+      const publishTime = new Date(item.attributes.publish_at);
+
+      if (currentTime >= publishTime) {
+        setShow(true);
+      } else {
+        toast.warning(
+          "Score details will be available after the publish time.",
+          {
+            position: toast.POSITION.TOP_CENTER,
+          }
+        );
+        setButtonDisabled(true);
+      }
+    } else {
+      toast.warning("Score details are not available yet.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+      setButtonDisabled(true);
+    }
   };
 
   const handleAcknowledge = async () => {
@@ -58,9 +91,10 @@ function MainComponent() {
 
       if (selectedItem && !acknowledged) {
         const entityId = userScores.length > 0 ? userScores[0].id : null;
+        console.log("Entity ID:", entityId);
 
         if (entityId) {
-          const acknowledgeResponse = await axios.post(
+          const acknowledgeResponse = await axios.get(
             `http://localhost:1337/api/views/${entityId}/ack`,
             null,
             {
@@ -134,6 +168,10 @@ function MainComponent() {
                         <Button
                           className="button-view-score"
                           onClick={() => handleShow(item)}
+                          disabled={isButtonDisabled}
+                          variant={
+                            isButtonDisabled ? "outline-secondary" : "secondary"
+                          }
                         >
                           View Score
                         </Button>
@@ -201,37 +239,49 @@ function MainComponent() {
                 </div>
 
                 <div className="scores">
-                  {selectedItem.attributes.views.data.map((score) => (
-                    <div key={score.id} className="score-item">
-                      <p>Score: {score.attributes.score}</p>
-                      <p
-                        className={`status ${
-                          score.attributes.score >= 50 ? "pass" : "fail"
-                        }`}
-                      >
-                        {score.attributes.score >= 50
-                          ? "Status: Passed"
-                          : "Status: Failed"}
-                      </p>
-                    </div>
-                  ))}
+                  {selectedItem.attributes.views.data
+                    .filter(
+                      (score) =>
+                        score.attributes.student_id ===
+                        localStorage.getItem("username")
+                    )
+                    .map((score) => (
+                      <div key={score.id} className="score-item">
+                        <p>
+                          Score: {score.attributes.score}/
+                          {selectedItem.attributes.full_score}
+                        </p>
+                        <p
+                          className={`status ${
+                            score.attributes.score >= 50 ? "pass" : "fail"
+                          }`}
+                        >
+                          {score.attributes.score >= 50
+                            ? "Status: Passed"
+                            : "Status: Failed"}
+                        </p>
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
           </Modal.Body>
           <Modal.Footer>
-  <Button variant="secondary" onClick={handleClose}>
-    Close
-  </Button>
-  <Button
-    variant="outline-secondary"
-    onClick={handleAcknowledge}
-    disabled={acknowledged || (selectedItem && selectedItem.attributes.views.data[0]?.attributes.ack)}
-  >
-    {acknowledged ? "Score Acknowledged" : "Acknowledge"}
-  </Button>
-</Modal.Footer>
-
+            <Button variant="secondary" onClick={handleClose}>
+              Close
+            </Button>
+            <Button
+              variant="outline-secondary"
+              onClick={handleAcknowledge}
+              disabled={
+                acknowledged ||
+                (selectedItem &&
+                  selectedItem.attributes.views.data[0]?.attributes.ack)
+              }
+            >
+              {acknowledged ? "Score Acknowledged" : "Acknowledge"}
+            </Button>
+          </Modal.Footer>
         </Modal>
       </div>
     </div>
