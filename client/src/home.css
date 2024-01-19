@@ -7,11 +7,7 @@ body {
     margin-top: 50px;
   }
   
-  .table {
-    background-color: #cb1827;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
+  
   
   .table thead th {
     background-color: #343a40; /* Dark Gray */

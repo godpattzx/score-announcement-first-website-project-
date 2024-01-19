@@ -18,27 +18,27 @@ function MainComponent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const api1Response = await axios.get("http://localhost:1337/api/subjects");
+  
+        setDataFromApi1(api1Response.data.data);
+  
         const username = localStorage.getItem("username");
         const authToken = localStorage.getItem("authToken");
-        const [api1Response, api2Response] = await Promise.all([
-          axios.get("http://localhost:1337/api/subjects"),
-          axios.get(
-            `http://localhost:1337/api/subjects?populate=*&filters[views][student_id][$eq]=${username}`,
-            {
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-              },
-            }
-          ),
-        ]);
-
+  
+        const api2Response = await axios.get(
+          `http://localhost:1337/api/subjects?populate=*&filters[views][student_id][$eq]=${username}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+  
         console.log("API 1 Response:", api1Response.data);
         console.log("API 2 Response:", api2Response.data);
-
-        setDataFromApi1(api1Response.data.data);
+  
         setDataFromApi2(api2Response.data.data);
-
-   
+  
         const userScoresResponse = await axios.get(
           `http://localhost:1337/api/views?filters[student_id][$eq]=${username}`,
           {
@@ -50,15 +50,24 @@ function MainComponent() {
         setUserScores(userScoresResponse.data.data);
       } catch (error) {
         console.error("API Error:", error);
-        toast.error("Error fetching data. Please try again.", {
-          position: toast.POSITION.TOP_CENTER,
-        });
+  
+        if (error.response && error.response.status === 401) {
+          toast.warning("Please log in to view your scores.", {
+            position: toast.POSITION.TOP_CENTER,
+          });
+        } else {
+          toast.error("Error fetching data. Please try again.", {
+            position: toast.POSITION.TOP_CENTER,
+          });
+        }
       }
     };
-
+  
     fetchData();
   }, []);
+  
 
+  
   const handleShow = (item) => {
     setAcknowledged(false);
     setSelectedItem(item);

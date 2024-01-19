@@ -14,6 +14,7 @@ import Logo from "../image/psu1.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { jwtDecode } from "jwt-decode";
 
+
 const LoginForm = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -21,6 +22,7 @@ const LoginForm = () => {
   const [submitEnabled, setSubmitEnabled] = useState(true);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
@@ -79,6 +81,9 @@ const LoginForm = () => {
   const handleGoogleLoginClick = () => {
     window.location.href = "http://localhost:1337/api/connect/google";
   };
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <GoogleOAuthProvider clientId="956646024955-8m429gqtoufr4e2lgri7p9kjmjlpaf53.apps.googleusercontent.com">
@@ -124,6 +129,7 @@ const LoginForm = () => {
               required
             />
           </Form.Group>
+
           <Form.Group className="mb-2" controlId="checkbox">
             <Form.Check type="checkbox" label="Remember me" />
           </Form.Group>
@@ -153,13 +159,22 @@ const LoginForm = () => {
           <div className="divider d-flex align-items-center ">
             <p className="text-center mx-3 mb-0">Or</p>
           </div>
-          <button
-            type="button"
-            className="login-with-google-btn "
-            onClick={handleGoogleLoginClick}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginTop: "20px", 
+            }}
           >
-            Sign in with Google
-          </button>
+            <button
+              type="button"
+              className="login-with-google-btn "
+              onClick={handleGoogleLoginClick}
+            >
+              Sign in with Google
+            </button>
+          </div>
         </Form>
         {/* Footer */}
         <div

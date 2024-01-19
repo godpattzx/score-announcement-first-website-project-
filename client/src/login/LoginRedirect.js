@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";  // Change here
-import ReactDOM from 'react-dom';
-import { createRoot } from 'react-dom/client';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify'; 
 

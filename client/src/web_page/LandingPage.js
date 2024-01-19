@@ -20,9 +20,9 @@ export const LandingPage = () => {
                 isChecked={isDark}
                 handleChange={() => setIsDark(!isDark)}
             />
-            <hi className="title">Score Management</hi>
+            <hi className="title">Score Announcement</hi>
             <div className="box">
-                <h2 onClick={handleLogin}>Login</h2>
+                <h5 onClick={handleLogin}>Login</h5>
                 
             </div>
              </div>

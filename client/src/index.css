@@ -1,12 +1,7 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin&family=Roboto:wght@300;400;500&display=swap');
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Roboto", sans-serif;
-
-}
+body {
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+  }
 
 :root{
     --background-color : #f6f6f6;

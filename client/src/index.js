@@ -10,6 +10,8 @@ import LoginForm from './login/loginPage';
 import App from './App';
 import HomeS from './homeS';
 import LoginRedirect from './login/LoginRedirect';
+import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const AppRouter = () => {
   return (
