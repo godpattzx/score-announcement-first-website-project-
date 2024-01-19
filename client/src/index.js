@@ -12,6 +12,7 @@ import HomeS from './homeS';
 import LoginRedirect from './login/LoginRedirect';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import ScoreManagement from './ScoreManagement';
 
 const AppRouter = () => {
   return (
@@ -22,6 +23,8 @@ const AppRouter = () => {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/staff" element={<HomeS />} />
         <Route path="/connect/google/redirect" element={<LoginRedirect />} />
+        <Route path="/score-management/:subjectName" element={<ScoreManagement />} />
+        
       </Routes>
     </Router>
   );

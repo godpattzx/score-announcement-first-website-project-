@@ -1,122 +1,101 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import { useState, useEffect } from "react";
-import { Button, Modal, Tab, Tabs } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Card, Button, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
-import "./home.css";
 import NavigationBar from "./components/navbar";
+import { useNavigate } from 'react-router-dom';
 
 function HomeS() {
-  const [show, setShow] = useState(false);
   const [data, setData] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const itemsPerPage = 4;
+  const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
 
-  const handleClose = () => setShow(false);
-  const handleShow = (item) => {
-    setSelectedItem(item);
-    setShow(true);
-  };
-
-  const getData = () => {
-    axios
-      .get("http://localhost:1337/api/subjects")
-      .then((res) => {
-        console.log("API Response:", res.data);
-        setData(res.data.data);
-      })
-      .catch((err) => {
-        console.log("API Error:", err);
-      });
-  };
+  const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
-    getData();
-  }, []);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:1337/api/subjects", {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+        setData(response.data.data);
+      } catch (error) {
+        console.error("API Error:", error);
+      }
+    };
+
+    fetchData();
+  }, [authToken]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+
+  const renderItems = () => {
+    const filteredItems = data.filter((item) =>
+      item.attributes.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return filteredItems.map((item) => (
+      <Col key={item.id} md={6}>
+        <Card style={{ marginBottom: "20px" }}>
+          <Card.Body>
+            <Card.Title>{item.attributes.name}</Card.Title>
+            <Card.Subtitle className="mb-2 text-muted">Lecturer: {item.attributes.Lecturer}</Card.Subtitle>
+            <Card.Text>{item.attributes.description[0]?.children[0]?.text}</Card.Text>
+            <Button variant="primary" onClick={() => handleScoreManagement(item.attributes.name)}>Score Management</Button>
+          </Card.Body>
+        </Card>
+      </Col>
+    ));
+  };
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(data.length / itemsPerPage); i++) {
+    pageNumbers.push(i);
+  }
+
+  const handleScoreManagement = (subjectName) => {
+    navigate(`/score-management/${subjectName}`);
+  };
 
   return (
     <div>
       <NavigationBar />
-      <div className="container">
-        <Tabs
-          defaultActiveKey="home"
-          id="uncontrolled-tab-example"
-          className="mb-3"
-        >
-          <Tab eventKey="home" title="Home">
-            <div className="row">
-              <div className="table-responsive">
-                <table className="table table-striped table-hover table-bordered">
-                  <thead className="thead-dark">
-                    <tr>
-                      <th>#</th>
-                      <th>Course Code</th>
-                      <th>Subject</th>
-                      <th>Description</th>
-                      <th>Lecturer</th>
-                      <th className="text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Array.isArray(data) && data.length > 0 ? (
-                      data.map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.id}</td>
-                          <td>{item.attributes.CourseCode}</td>
-                          <td>{item.attributes.name}</td>
-                          <td>
-                            {
-                              item.attributes.description[0]?.children[0]?.text ||
-                              ""
-                            }
-                          </td>
-                          <td>{item.attributes.Lecturer}</td>
-                          <td className="table-column-button">
-                            <Button
-                              className="button-view-score"
-                              onClick={() => handleShow(item)}
-                            >
-                              View Score
-                            </Button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="6">No data available</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </Tab>
-          <Tab eventKey="land" title="Land">
-            {/* Add content for the "Land" tab here */}
-          </Tab>
-        </Tabs>
-        <div className="model_box">
-          {/* Modal code for displaying the selected item's score */}
-          <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title>Score Details</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              {selectedItem && (
-                <div>
-                  {/* Display score details for the selected item */}
-                  <p>Course Code: {selectedItem.attributes.CourseCode}</p>
-                  <p>Subject: {selectedItem.attributes.name}</p>
-                  {/* Add more details as needed */}
-                </div>
-              )}
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
-                Close
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        </div>
-      </div>
+      <Container>
+        <h3 className="mb-4">Staff-Management</h3>
+        <Row>
+          <Col>
+          <input
+              type="text"
+              placeholder=" Subject Name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="form-control mb-3" 
+              style={{ maxWidth: '300px' }} 
+            />
+          </Col>
+        </Row>
+        <Row>{renderItems()}</Row>
+        <Row>
+          <Col>
+            <ul className="pagination">
+              {pageNumbers.map((number) => (
+                <li key={number} className="page-item">
+                  <Button className="page-link" onClick={() => paginate(number)}>
+                    {number}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 }

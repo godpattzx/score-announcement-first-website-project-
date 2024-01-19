@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Button, Modal } from "react-bootstrap";
 import axios from "axios";
 import "./navbar.css";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import logo from "../image/PSU Logo-01.png";
 
 const NavigationBar = () => {
   const [userData, setUserData] = useState(null);
@@ -46,7 +46,15 @@ const NavigationBar = () => {
   return (
     <>
       <Navbar expand="lg">
-        <Navbar.Brand href="/student">Score-Announcement</Navbar.Brand>
+      <Navbar.Brand href="/student">
+          <img
+            src={logo}
+            alt="Your Logo Alt Text"
+          
+            className="d-inline-block align-top"
+            style={{ maxHeight: '50px' }}
+          />
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto">

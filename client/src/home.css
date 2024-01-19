@@ -147,7 +147,41 @@ body {
   .fail {
     color: red;
   }
+  .top-right-search {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  .search-input {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .search-input input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
   
 
-
+  .search-input input::placeholder {
+    color: #aaa;
+  }
   
+ 
+  .search-input::after {
+    content: '\1F50D'; 
+    font-size: 20px;
+    color: #aaa;
+    position: absolute;
+    top: 50%;
+    right: 30px;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+
+  .search-input::after:hover {
+    color: #333;
+  }
