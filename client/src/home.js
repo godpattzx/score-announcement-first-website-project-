@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./home.css";
+import { format } from 'date-fns';
 
 function MainComponent() {
   const [show, setShow] = useState(false);
@@ -150,7 +151,7 @@ function MainComponent() {
                     {/* Add more table headers as needed */}
                     <th>Description</th>
                     <th>Lecturer</th>
-                    <th className="text-center">Action</th>
+                    <th >Publication Time</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -164,17 +165,8 @@ function MainComponent() {
                           ""}
                       </td>
                       <td>{item.attributes.Lecturer}</td>
-                      <td className="table-column-button">
-                        <Button
-                          className="button-view-score"
-                          onClick={() => handleShow(item)}
-                          disabled={isButtonDisabled}
-                          variant={
-                            isButtonDisabled ? "outline-secondary" : "secondary"
-                          }
-                        >
-                          View Score
-                        </Button>
+                      <td >
+                      {format(new Date(item.attributes.publish_at), 'yyyy-MM-dd HH:mm:ss')}
                       </td>
                     </tr>
                   ))}
