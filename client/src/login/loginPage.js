@@ -88,27 +88,28 @@ const LoginForm = () => {
   return (
     <GoogleOAuthProvider clientId="956646024955-8m429gqtoufr4e2lgri7p9kjmjlpaf53.apps.googleusercontent.com">
       <div
-        className="sign-in__wrapper "
-        style={{ backgroundImage: `url(${BackgroundImage})` }}
-      >
-        <div className="sign-in__backdrop"></div>
-        <Form className="shadow p-4 bg-white rounded" onSubmit={handleSubmit}>
-          <img
-            className="img-thumbnail mx-auto d-block mb-2"
-            src={Logo}
-            alt="logo"
-          />
-          <div className="h4 mb-2 text-center">Sign In</div>
-          {show ? (
-            <Alert
-              className="mb-2"
-              variant="danger"
-              onClose={() => setShow(false)}
-              dismissible
-            >
-              Incorrect username or password.
-            </Alert>
-          ) : null}
+       
+       className="sign-in__wrapper "
+       style={{ backgroundImage: `url(${BackgroundImage})` }}
+     >
+       <div className="sign-in__backdrop"></div>
+       <Form className="shadow p-4 bg-white rounded" onSubmit={handleSubmit}>
+         <img
+           className="img-thumbnail mx-auto d-block mb-2"
+           src={Logo}
+           alt="logo"
+         />
+         <div className="h4 mb-2 text-center">Sign In</div>
+         {show ? (
+           <Alert
+             className="mb-2"
+             variant="danger"
+             onClose={() => setShow(false)}
+             dismissible
+           >
+             Incorrect username or password.
+           </Alert>
+         ) : null}
           <Form.Group className="mb-2" controlId="username">
             <Form.Label>Username</Form.Label>
             <Form.Control

@@ -65,17 +65,17 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "subject": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::subject.subject",
-      "inversedBy": "staff"
-    },
     "view": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::view.view",
       "inversedBy": "students"
+    },
+    "subject": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::subject.subject",
+      "inversedBy": "createBy"
     }
   }
 }

@@ -65,8 +65,48 @@ function MainComponent() {
 
     fetchData();
   }, []);
+  const handleAcknowledge = async (item) => {
+    try {
+      const authToken = localStorage.getItem("authToken");
+      const viewsData = item.attributes.views.data;
 
-  const handleShow = (item) => {
+      if (viewsData && Array.isArray(viewsData) && viewsData.length > 0) {
+        const acknowledgeResponse = await axios.get(
+          `http://localhost:1337/api/views/${viewsData[0].id}/ack`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        console.log("Acknowledge API Response:", acknowledgeResponse.data);
+        toast.success("You have acknowledged your score successfully!");
+        setAcknowledged(true);
+      } else {
+        toast.warning(
+          "Score details are not available or are in an unexpected format.",
+          {
+            position: toast.POSITION.TOP_CENTER,
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Acknowledge API Error:", error);
+
+      const errorMessage =
+        error.response && error.response.data
+          ? error.response.data.message
+          : "Unknown error";
+
+      toast.error(`Error acknowledging your score: ${errorMessage}`, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    } finally {
+      handleClose();
+    }
+  };
+
+  const handleShow = async (item) => {
     setAcknowledged(false);
     setSelectedItem(item);
 
@@ -77,10 +117,34 @@ function MainComponent() {
       if (currentTime >= publishTime) {
         setShow(true);
         setButtonDisabled(false);
+
+        try {
+          const authToken = localStorage.getItem("authToken");
+
+          if (item.attributes.views.data.length > 0) {
+            const seenResponse = await axios.get(
+              `http://localhost:1337/api/views/${item.attributes.views.data[0].id}/seen`,
+              {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                },
+              }
+            );
+            console.log("Score marked as seen:", seenResponse.data);
+          }
+        } catch (error) {
+          console.error("Seen API Error:", error);
+          toast.error("Error marking score as seen. Please try again.", {
+            position: toast.POSITION.TOP_CENTER,
+          });
+        }
       } else {
-        toast.warning("Score details will be available after the publish time.", {
-          position: toast.POSITION.TOP_CENTER,
-        });
+        toast.warning(
+          "Score details will be available after the publish time.",
+          {
+            position: toast.POSITION.TOP_CENTER,
+          }
+        );
         setButtonDisabled(true);
       }
     } else {
@@ -88,49 +152,6 @@ function MainComponent() {
         position: toast.POSITION.TOP_CENTER,
       });
       setButtonDisabled(true);
-    }
-  };
-
-  const handleAcknowledge = async () => {
-    try {
-      const authToken = localStorage.getItem("authToken");
-
-      if (selectedItem && !acknowledged) {
-        const entityId = userScores.length > 0 ? userScores[0].id : null;
-
-        if (entityId) {
-          const acknowledgeResponse = await axios.get(
-            `http://localhost:1337/api/views/${entityId}/ack`,
-            null,
-            {
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-              },
-            }
-          );
-
-          toast.success("You have acknowledged your score successfully!", {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: false,
-            progress: undefined,
-            theme: "colored",
-          });
-
-          setAcknowledged(true);
-        }
-      }
-    } catch (error) {
-      console.error("Acknowledge API Error:", error);
-
-      toast.error("Error acknowledging your score. Please try again.", {
-        position: toast.POSITION.TOP_CENTER,
-      });
-    } finally {
-      handleClose();
     }
   };
 
@@ -145,64 +166,68 @@ function MainComponent() {
   return (
     <div className="container">
       <Tabs defaultActiveKey="home" id="main-tabs" className="mb-3">
-      <Tab eventKey="home" title="Home">
-  <div className="row">
-    <div className="search-input mb-3 ">
-      <input
-        type="text"
-        placeholder=" Subject Name"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-    </div>
-    {dataFromApi1.length > 0 ? (
-      <div className="table-responsive mb-4">
-        <table className="table table-striped table-hover table-bordered">
-          <thead className="thead-dark">
-            <tr>
-              <th>#</th>
-              <th>Course Code</th>
-              <th>Subject</th>
-              <th>Description</th>
-              <th>Lecturer</th>
-              <th>Publication Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dataFromApi1.map((item, index) => (
-              <tr key={index}>
-                <td>{item.id}</td>
-                <td>{item.attributes.CourseCode}</td>
-                <td>{item.attributes.name}</td>
-                <td>
-                  {item.attributes.description[0]?.children[0]?.text || ""}
-                </td>
-                <td>{item.attributes.Lecturer}</td>
-                <td>
-                  {format(
-                    new Date(item.attributes.publish_at),
-                    "yyyy-MM-dd HH:mm:ss"
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    ) : (
-      <p className="no-scores-message">
-        No scores available for you to view.
-      </p>
-    )}
-  </div>
-</Tab>
+        <Tab eventKey="home" title="Home">
+          <div className="row">
+            <div className="search-input mb-3 ">
+              <input
+                type="text"
+                placeholder=" Search Subject Name"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            {dataFromApi1.length > 0 ? (
+              <div className="table-responsive mb-4">
+                <table className="table table-striped table-hover table-bordered">
+                  <thead className="thead-dark">
+                    <tr>
+                     
+                      <th>Course Code</th>
+                      <th>Subject</th>
+                      <th>Description</th>
+                      <th>Lecturer</th>
+                      <th>Publish Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataFromApi1.map((item, index) => (
+                      <tr key={index}>
+                    
+                        <td>{item.attributes.CourseCode}</td>
+                        <td>{item.attributes.name}</td>
+                        <td>
+                          {item.attributes.description &&
+                          item.attributes.description[0] &&
+                          item.attributes.description[0].children[0]
+                            ? item.attributes.description[0].children[0].text
+                            : ""}
+                        </td>
+                        <td>{item.attributes.Lecturer}</td>
+                        <td>
+                          {format(
+                            new Date(item.attributes.publish_at),
+                            "yyyy-MM-dd HH:mm:ss"
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="no-scores-message">
+                No scores available for you to view.
+              </p>
+            )}
+          </div>
+        </Tab>
 
         <Tab eventKey="view" title="View">
           <div className="row">
             <div className="search-input mb-3 ">
               <input
                 type="text"
-                placeholder=" Subject Name"
+                placeholder=" Search Subject Name"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -212,7 +237,6 @@ function MainComponent() {
                 <table className="table table-striped table-hover table-bordered">
                   <thead className="thead-dark">
                     <tr>
-                      <th>#</th>
                       <th>Course Code</th>
                       <th>Subject</th>
                       <th>Description</th>
@@ -223,7 +247,6 @@ function MainComponent() {
                   <tbody>
                     {filteredDataFromApi2.map((item, index) => (
                       <tr key={index}>
-                        <td>{item.id}</td>
                         <td>{item.attributes.CourseCode}</td>
                         <td>{item.attributes.name}</td>
                         <td>
@@ -245,7 +268,9 @@ function MainComponent() {
                 </table>
               </div>
             ) : (
-              <p className="no-scores-message">No scores available for you to view.</p>
+              <p className="no-scores-message">
+                No scores available for you to view.
+              </p>
             )}
           </div>
         </Tab>

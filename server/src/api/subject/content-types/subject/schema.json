@@ -19,7 +19,7 @@
     "description": {
       "type": "blocks"
     },
-    "staff": {
+    "createBy": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "plugin::users-permissions.user",
@@ -36,14 +36,6 @@
       "relation": "oneToMany",
       "target": "api::view.view",
       "mappedBy": "subject"
-    },
-    "status": {
-      "type": "enumeration",
-      "enum": [
-        "draft",
-        "published"
-      ],
-      "default": "draft"
     },
     "full_score": {
       "type": "integer",

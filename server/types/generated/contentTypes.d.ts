@@ -376,7 +376,7 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
   attributes: {
     name: Attribute.String & Attribute.Required;
     description: Attribute.Blocks;
-    staff: Attribute.Relation<
+    createBy: Attribute.Relation<
       'api::subject.subject',
       'oneToMany',
       'plugin::users-permissions.user'
@@ -388,8 +388,6 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
       'oneToMany',
       'api::view.view'
     >;
-    status: Attribute.Enumeration<['draft', 'published']> &
-      Attribute.DefaultTo<'draft'>;
     full_score: Attribute.Integer & Attribute.DefaultTo<0>;
     publish_at: Attribute.DateTime;
     createdAt: Attribute.DateTime;
@@ -744,15 +742,15 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    subject: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'manyToOne',
-      'api::subject.subject'
-    >;
     view: Attribute.Relation<
       'plugin::users-permissions.user',
       'manyToOne',
       'api::view.view'
+    >;
+    subject: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToOne',
+      'api::subject.subject'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

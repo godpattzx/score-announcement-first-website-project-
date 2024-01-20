@@ -52,7 +52,7 @@ const NavigationBar = () => {
             alt="Your Logo Alt Text"
           
             className="d-inline-block align-top"
-            style={{ maxHeight: '50px' }}
+            style={{ maxHeight: '45px' }}
           />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
