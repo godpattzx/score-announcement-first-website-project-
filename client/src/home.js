@@ -15,6 +15,7 @@ function MainComponent() {
   const [acknowledged, setAcknowledged] = useState(false);
   const [isButtonDisabled, setButtonDisabled] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+    
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,42 +70,46 @@ function MainComponent() {
   const handleAcknowledge = async () => {
     try {
       const authToken = localStorage.getItem("authToken");
-
+      const username = localStorage.getItem("username");
+  
       console.log("Received Item:", selectedItem);
-
       const itemAttributes = selectedItem.attributes;
-
       console.log("Item Attributes:", itemAttributes);
-
+  
       if (
         itemAttributes &&
         itemAttributes.views &&
         Array.isArray(itemAttributes.views.data) &&
         itemAttributes.views.data.length > 0
       ) {
-        const firstView = itemAttributes.views.data[0];
-
-        console.log("First View:", firstView);
-
-        if (firstView && firstView.id) {
-          const acknowledgeResponse = await axios.get(
-            `http://localhost:1337/api/views/${firstView.id}/ack`,
-            {
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-              },
-            }
-          );
-          console.log("Acknowledge API Response:", acknowledgeResponse.data);
-          toast.success("You have acknowledged your score successfully!");
-          setAcknowledged(true);
-        } else {
-          toast.warning(
-            "Score details are not available or are in an unexpected format.",
-            {
+        // Find the view that matches the logged-in user's username
+        const userView = itemAttributes.views.data.find(
+          (view) => view.attributes.student_id === username
+        );
+  
+        if (userView) {
+          if (!userView.attributes.ack) {
+            const acknowledgeResponse = await axios.get(
+              `http://localhost:1337/api/views/${userView.id}/ack`,
+              {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                },
+              }
+            );
+  
+            console.log("Acknowledge API Response:", acknowledgeResponse.data);
+            toast.success("You have acknowledged your score successfully!");
+            setAcknowledged(true);
+          } else {
+            toast.warning("Score is already acknowledged.", {
               position: toast.POSITION.TOP_CENTER,
-            }
-          );
+            });
+          }
+        } else {
+          toast.warning("Score details not found for the logged-in user.", {
+            position: toast.POSITION.TOP_CENTER,
+          });
         }
       } else {
         toast.warning(
@@ -116,12 +121,12 @@ function MainComponent() {
       }
     } catch (error) {
       console.error("Acknowledge API Error:", error);
-
+  
       const errorMessage =
         error.response && error.response.data
           ? error.response.data.message
           : "Unknown error";
-
+  
       toast.error(`Error acknowledging your score: ${errorMessage}`, {
         position: toast.POSITION.TOP_CENTER,
       });
@@ -129,48 +134,58 @@ function MainComponent() {
       handleClose();
     }
   };
-
+  
+  
   const handleShow = async (item) => {
-    // ทุกครั้งที่เรียก handleShow ก็เรียก setAcknowledged(false) เพื่อรีเซ็ต acknowledged เป็น false
     setAcknowledged(false);
-  
-    try {
-      // เรียก API เพื่อดึงข้อมูลรายวิชาและคะแนน
-      const authToken = localStorage.getItem("authToken");
-      const response = await axios.get(
-        `http://localhost:1337/api/subjects/${item.id}?populate=views`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-        console.log(response.data.data);
-      const subjectWithViews = response.data.data;
-      
-      // ใช้ spread operator เพื่อรักษาข้อมูลเดิมและกำหนดข้อมูลรายวิชาที่ได้รับจาก API
-      setSelectedItem((prevSelectedItem) => ({
-        ...prevSelectedItem,
-        ...subjectWithViews,
-      }));
-  
-      // ตรวจสอบว่า selectedItem มีค่าหรือไม่
-      if (subjectWithViews.attributes.publishedAt) {
-        // ตรวจสอบว่ามีคะแนนที่สามารถแสดงได้หรือไม่
-        if (subjectWithViews.attributes.views.data.length > 0) {
-          const seenResponse = await axios.get(
-            `http://localhost:1337/api/views/${subjectWithViews.attributes.views.data[0].id}/seen`,
+    setSelectedItem(item);
+
+    if (item.attributes.publishedAt) {
+      const currentTime = new Date();
+      const publishTime = new Date(item.attributes.publish_at);
+
+      if (currentTime >= publishTime) {
+        setShow(true);
+        setButtonDisabled(false);
+
+        try {
+          const authToken = localStorage.getItem("authToken");
+
+          const response = await axios.get(
+            `http://localhost:1337/api/subjects/${item.id}?populate=views`,
             {
               headers: {
                 Authorization: `Bearer ${authToken}`,
               },
             }
           );
-          console.log("Score marked as seen:", seenResponse.data);
-          console.log(
-            "Data from API:",
-            subjectWithViews.attributes.views.data
-          );
+
+          const subjectWithViews = response.data.data;
+
+          // กรองข้อมูล views ที่เป็นของ student ที่ login
+          const filteredViewsData =
+            subjectWithViews.attributes.views.data.filter(
+              (view) =>
+                view.attributes.student_id === localStorage.getItem("username")
+            );
+
+          if (filteredViewsData.length > 0) {
+            const seenResponse = await axios.get(
+              `http://localhost:1337/api/views/${filteredViewsData[0].id}/seen`,
+              {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                },
+              }
+            );
+            console.log("Score marked as seen:", seenResponse.data);
+            console.log("Data from API:", filteredViewsData[0]?.attributes);
+          }
+        } catch (error) {
+          console.error("Seen API Error:", error);
+          toast.error("Error marking score as seen. Please try again.", {
+            position: toast.POSITION.TOP_CENTER,
+          });
         }
       } else {
         toast.warning(
@@ -181,16 +196,13 @@ function MainComponent() {
         );
         setButtonDisabled(true);
       }
-  
-      setShow(true);
-    } catch (error) {
-      console.error("Error fetching subject data:", error);
-      toast.error("Error fetching subject data. Please try again.", {
+    } else {
+      toast.warning("Score details are not available yet.", {
         position: toast.POSITION.TOP_CENTER,
       });
+      setButtonDisabled(true);
     }
   };
-  
 
   const handleClose = () => {
     setShow(false);
@@ -325,37 +337,42 @@ function MainComponent() {
                 </div>
 
                 <div className="scores">
-                  {selectedItem.attributes.views.data
-                    .filter(
-                      (score) =>
-                        score.attributes.student_id ===
-                        localStorage.getItem("username")
-                    )
-                    .map((score) => (
-                      <div key={score.id} className="score-item">
-                        <p>
-                          Score: {score.attributes.score}/
-                          {selectedItem.attributes.full_score}
-                        </p>
-                        <p
-                          className={`status ${
-                            score.attributes.score >= 50 ? "pass" : "fail"
-                          }`}
-                        >
-                          {score.attributes.score >= 50
-                            ? "Status: Passed"
-                            : "Status: Failed"}
-                        </p>
-                        <p className="acknowledged-text">
-                          {score.attributes.ack
-                            ? `Score Acknowledged at: ${format(
-                                new Date(score.attributes.ack_datetime),
-                                "yyyy-MM-dd HH:mm:ss"
-                              )}`
-                            : "Score not yet acknowledged"}
-                        </p>
-                      </div>
-                    ))}
+                  {selectedItem.attributes.views.data &&
+                  selectedItem.attributes.views.data.length > 0 ? (
+                    selectedItem.attributes.views.data
+                      .filter(
+                        (score) =>
+                          score.attributes.student_id ===
+                          localStorage.getItem("username")
+                      )
+                      .map((score) => (
+                        <div key={score.id} className="score-item">
+                          <p>
+                            Score: {score.attributes.score}/
+                            {selectedItem.attributes.full_score}
+                          </p>
+                          <p
+                            className={`status ${
+                              score.attributes.score >= 50 ? "pass" : "fail"
+                            }`}
+                          >
+                            {score.attributes.score >= 50
+                              ? "Status: Passed"
+                              : "Status: Failed"}
+                          </p>
+                          <p className="acknowledged-text">
+                            {score.attributes.ack
+                              ? `Score Acknowledged at: ${format(
+                                  new Date(score.attributes.ack_datetime),
+                                  "yyyy-MM-dd HH:mm:ss"
+                                )}`
+                              : "Score not yet acknowledged"}
+                          </p>
+                        </div>
+                      ))
+                  ) : (
+                    <p>No scores available for this subject.</p>
+                  )}
                 </div>
               </div>
             )}
@@ -365,22 +382,15 @@ function MainComponent() {
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
+     
             <Button
-              variant="outline-secondary"
-              onClick={() => {
-                handleAcknowledge();
-                console.log(
-                  "ack value:",
-                  selectedItem.attributes.views.data[0]?.attributes.ack
-                );
-              }}
-              disabled={
-                acknowledged ||
-                selectedItem?.attributes.views.data[0]?.attributes.ack
-              }
-            >
-              {acknowledged ? "Score Acknowledged" : "Acknowledge"}
-            </Button>
+  variant="outline-secondary"
+  onClick={() => handleAcknowledge()}
+  disabled={acknowledged || selectedItem?.attributes.views.data[0]?.attributes.ack === true}
+>
+  {acknowledged || selectedItem?.attributes.views.data[0]?.attributes.ack ? "Score Acknowledged" : "Acknowledge"}
+</Button>
+
           </Modal.Footer>
         </Modal>
       </div>
