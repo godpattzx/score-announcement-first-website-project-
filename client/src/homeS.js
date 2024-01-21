@@ -509,7 +509,7 @@ function HomeS() {
                 }
               />
             </Form.Group>
-            <Form.Group controlId="formFullScore">
+            <Form.Group controlId="formFullScore" style={{ marginTop: "8px" }}>
               <Form.Label>Full Score *</Form.Label>
               <Form.Control
                 type="int"

@@ -65,23 +65,47 @@ function MainComponent() {
 
     fetchData();
   }, []);
-  const handleAcknowledge = async (item) => {
+
+  const handleAcknowledge = async () => {
     try {
       const authToken = localStorage.getItem("authToken");
-      const viewsData = item.attributes.views.data;
 
-      if (viewsData && Array.isArray(viewsData) && viewsData.length > 0) {
-        const acknowledgeResponse = await axios.get(
-          `http://localhost:1337/api/views/${viewsData[0].id}/ack`,
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-        console.log("Acknowledge API Response:", acknowledgeResponse.data);
-        toast.success("You have acknowledged your score successfully!");
-        setAcknowledged(true);
+      console.log("Received Item:", selectedItem);
+
+      const itemAttributes = selectedItem.attributes;
+
+      console.log("Item Attributes:", itemAttributes);
+
+      if (
+        itemAttributes &&
+        itemAttributes.views &&
+        Array.isArray(itemAttributes.views.data) &&
+        itemAttributes.views.data.length > 0
+      ) {
+        const firstView = itemAttributes.views.data[0];
+
+        console.log("First View:", firstView);
+
+        if (firstView && firstView.id) {
+          const acknowledgeResponse = await axios.get(
+            `http://localhost:1337/api/views/${firstView.id}/ack`,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          );
+          console.log("Acknowledge API Response:", acknowledgeResponse.data);
+          toast.success("You have acknowledged your score successfully!");
+          setAcknowledged(true);
+        } else {
+          toast.warning(
+            "Score details are not available or are in an unexpected format.",
+            {
+              position: toast.POSITION.TOP_CENTER,
+            }
+          );
+        }
       } else {
         toast.warning(
           "Score details are not available or are in an unexpected format.",
@@ -107,36 +131,46 @@ function MainComponent() {
   };
 
   const handleShow = async (item) => {
+    // ทุกครั้งที่เรียก handleShow ก็เรียก setAcknowledged(false) เพื่อรีเซ็ต acknowledged เป็น false
     setAcknowledged(false);
-    setSelectedItem(item);
-
-    if (item.attributes.publishedAt) {
-      const currentTime = new Date();
-      const publishTime = new Date(item.attributes.publish_at);
-
-      if (currentTime >= publishTime) {
-        setShow(true);
-        setButtonDisabled(false);
-
-        try {
-          const authToken = localStorage.getItem("authToken");
-
-          if (item.attributes.views.data.length > 0) {
-            const seenResponse = await axios.get(
-              `http://localhost:1337/api/views/${item.attributes.views.data[0].id}/seen`,
-              {
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                },
-              }
-            );
-            console.log("Score marked as seen:", seenResponse.data);
-          }
-        } catch (error) {
-          console.error("Seen API Error:", error);
-          toast.error("Error marking score as seen. Please try again.", {
-            position: toast.POSITION.TOP_CENTER,
-          });
+  
+    try {
+      // เรียก API เพื่อดึงข้อมูลรายวิชาและคะแนน
+      const authToken = localStorage.getItem("authToken");
+      const response = await axios.get(
+        `http://localhost:1337/api/subjects/${item.id}?populate=views`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+        console.log(response.data.data);
+      const subjectWithViews = response.data.data;
+      
+      // ใช้ spread operator เพื่อรักษาข้อมูลเดิมและกำหนดข้อมูลรายวิชาที่ได้รับจาก API
+      setSelectedItem((prevSelectedItem) => ({
+        ...prevSelectedItem,
+        ...subjectWithViews,
+      }));
+  
+      // ตรวจสอบว่า selectedItem มีค่าหรือไม่
+      if (subjectWithViews.attributes.publishedAt) {
+        // ตรวจสอบว่ามีคะแนนที่สามารถแสดงได้หรือไม่
+        if (subjectWithViews.attributes.views.data.length > 0) {
+          const seenResponse = await axios.get(
+            `http://localhost:1337/api/views/${subjectWithViews.attributes.views.data[0].id}/seen`,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          );
+          console.log("Score marked as seen:", seenResponse.data);
+          console.log(
+            "Data from API:",
+            subjectWithViews.attributes.views.data
+          );
         }
       } else {
         toast.warning(
@@ -147,13 +181,16 @@ function MainComponent() {
         );
         setButtonDisabled(true);
       }
-    } else {
-      toast.warning("Score details are not available yet.", {
+  
+      setShow(true);
+    } catch (error) {
+      console.error("Error fetching subject data:", error);
+      toast.error("Error fetching subject data. Please try again.", {
         position: toast.POSITION.TOP_CENTER,
       });
-      setButtonDisabled(true);
     }
   };
+  
 
   const handleClose = () => {
     setShow(false);
@@ -181,7 +218,6 @@ function MainComponent() {
                 <table className="table table-striped table-hover table-bordered">
                   <thead className="thead-dark">
                     <tr>
-                     
                       <th>Course Code</th>
                       <th>Subject</th>
                       <th>Description</th>
@@ -192,7 +228,6 @@ function MainComponent() {
                   <tbody>
                     {dataFromApi1.map((item, index) => (
                       <tr key={index}>
-                    
                         <td>{item.attributes.CourseCode}</td>
                         <td>{item.attributes.name}</td>
                         <td>
@@ -332,11 +367,16 @@ function MainComponent() {
             </Button>
             <Button
               variant="outline-secondary"
-              onClick={handleAcknowledge}
+              onClick={() => {
+                handleAcknowledge();
+                console.log(
+                  "ack value:",
+                  selectedItem.attributes.views.data[0]?.attributes.ack
+                );
+              }}
               disabled={
                 acknowledged ||
-                (selectedItem &&
-                  selectedItem.attributes.views.data[0]?.attributes.ack)
+                selectedItem?.attributes.views.data[0]?.attributes.ack
               }
             >
               {acknowledged ? "Score Acknowledged" : "Acknowledge"}

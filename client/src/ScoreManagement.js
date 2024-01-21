@@ -3,8 +3,11 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Table, Container, Button, Modal, Form } from "react-bootstrap";
 import NavigationBar from "./components/navbar";
+import * as xlsx from "xlsx";
 
 function ScoreManagement() {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isFileSelected, setIsFileSelected] = useState(false);
   const [subjectId, setSubjectId] = useState(null);
   const { subjectName } = useParams();
   const [studentScores, setStudentScores] = useState([]);
@@ -30,6 +33,112 @@ function ScoreManagement() {
     ack: false,
   });
 
+  const readUploadFile = async (file) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const data = e.target.result;
+        const workbook = xlsx.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const json = xlsx.utils.sheet_to_json(worksheet);
+
+        try {
+          const authToken = localStorage.getItem("authToken");
+
+          for (const item of json) {
+            const userResponse = await axios.get(
+              `http://localhost:1337/api/users?filters[username][$eq]=${item["Student ID"]}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                },
+              }
+            );
+
+            const userId = userResponse.data[0]?.id;
+            if (!userId) {
+              console.error(`User with username ${item["Student ID"]} not found.`);
+              continue;
+            }
+
+            const response = await axios.post(
+              "http://localhost:1337/api/views",
+              {
+                data: {
+                  student_id: String(item["Student ID"]),
+                  score: item["Score"],
+                  subject: {
+                    connect: [
+                      {
+                        id: subjectId,
+                      },
+                    ],
+                  },
+                  students: {
+                    connect: [
+                      {
+                        id: userId,
+                      },
+                    ],
+                  },
+                },
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                },
+              }
+            );
+            console.log("Created Score Data:", response.data);
+          }
+
+          const scoresResponse = await axios.get(
+            `http://localhost:1337/api/views?populate=*`,
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          );
+          const filteredScores = scoresResponse.data.data.filter(
+            (score) =>
+              score.attributes &&
+              score.attributes.subject &&
+              score.attributes.subject.data &&
+              score.attributes.subject.data.attributes &&
+              score.attributes.subject.data.attributes.name === subjectName
+          );
+          setStudentScores(filteredScores);
+        } catch (error) {
+          console.error("Create Error:", error);
+        } finally {
+          setIsFileSelected(false);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
+  
+  const handleConfirmUpload = () => {
+    setIsFileSelected(false);
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+  };
+
+  const handleUpload = (e) => {
+    e.preventDefault(); 
+    if (selectedFile) {
+      console.log('Uploading file:', selectedFile);
+      readUploadFile(selectedFile);
+    } else {
+      console.error('No file selected');
+    }
+  };
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -44,7 +153,9 @@ function ScoreManagement() {
         );
 
         const users = response.data || [];
-        setUserList(users.map((user) => ({ id: user.id, name: user.username })));
+        setUserList(
+          users.map((user) => ({ id: user.id, name: user.username }))
+        );
       } catch (error) {
         console.error("API Error:", error);
       }
@@ -74,8 +185,11 @@ function ScoreManagement() {
             score.attributes.subject.data.attributes.name === subjectName
         );
         setStudentScores(filteredScores);
-        setSubjectId(filteredScores.length > 0 ? filteredScores[0].attributes.subject.data.id : null);
-
+        setSubjectId(
+          filteredScores.length > 0
+            ? filteredScores[0].attributes.subject.data.id
+            : null
+        );
       } catch (error) {
         console.error("API Error:", error);
       }
@@ -146,7 +260,9 @@ function ScoreManagement() {
 
       setStudentScores((prevScores) =>
         prevScores.map((score) =>
-          score.id === editScoreId ? { ...score, attributes: editedScore } : score
+          score.id === editScoreId
+            ? { ...score, attributes: editedScore }
+            : score
         )
       );
     } catch (error) {
@@ -173,10 +289,8 @@ function ScoreManagement() {
         return;
       }
 
-      const selectedUser = newScore.student_id.split(',')[1];
-      const selectedUserId = newScore.student_id.split(',')[0];
-
-   
+      const selectedUser = newScore.student_id.split(",")[1];
+      const selectedUserId = newScore.student_id.split(",")[0];
 
       const PostCreate = await axios.post(
         "http://localhost:1337/api/views",
@@ -194,7 +308,7 @@ function ScoreManagement() {
             students: {
               connect: [
                 {
-                  id: selectedUserId ,
+                  id: selectedUserId,
                 },
               ],
             },
@@ -254,6 +368,33 @@ function ScoreManagement() {
         >
           Create New Score
         </Button>
+        <div className="input-group mb-3">
+          <input
+            type="file"
+            className="form-control"
+            id="customFile"
+            onChange={handleFileChange}
+          />
+          <div className="input-group-append">
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleUpload}
+            >
+              Upload
+            </button>
+          </div>
+        </div>
+        {isFileSelected && (
+          <Button
+            variant="info"
+            size="sm"
+            className="ml-2"
+            onClick={handleConfirmUpload}
+          >
+            Confirm Upload
+          </Button>
+        )}
         <Table striped bordered hover responsive>
           <thead>
             <tr>
@@ -279,10 +420,14 @@ function ScoreManagement() {
                     "N/A"}
                 </td>
                 <td>
-                  {formatDatetime(score.attributes && score.attributes.seen_datetime)}
+                  {formatDatetime(
+                    score.attributes && score.attributes.seen_datetime
+                  )}
                 </td>
                 <td>
-                  {formatDatetime(score.attributes && score.attributes.ack_datetime)}
+                  {formatDatetime(
+                    score.attributes && score.attributes.ack_datetime
+                  )}
                 </td>
                 <td>
                   {score.attributes && score.attributes.ack
@@ -316,9 +461,7 @@ function ScoreManagement() {
         <Modal.Header closeButton>
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete this score?
-        </Modal.Body>
+        <Modal.Body>Are you sure you want to delete this score?</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
             Cancel
@@ -391,7 +534,7 @@ function ScoreManagement() {
                 ))}
               </Form.Control>
             </Form.Group>
-            <Form.Group controlId="formScoreNew" style={{ marginTop: '10px' }} >
+            <Form.Group controlId="formScoreNew" style={{ marginTop: "10px" }}>
               <Form.Label>Score</Form.Label>
               <Form.Control
                 type="number"
