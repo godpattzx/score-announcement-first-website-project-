@@ -1,4 +1,13 @@
-Strap Account:
+Strapi Account:
 admin@webdev.com
 Wd123456
+
+login user-student-test
+3student
+123456
+
+login user-staff-test
+staff_a
+123456
+
 
