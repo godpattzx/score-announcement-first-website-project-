@@ -4,7 +4,7 @@ import axios from "axios";
 import { Table, Container, Button, Modal, Form } from "react-bootstrap";
 import NavigationBar from "./components/navbar";
 import * as xlsx from "xlsx";
-import './ScoreManagement.css';
+import "./ScoreManagement.css";
 
 function ScoreManagement() {
   const [showConfirmUploadModal, setShowConfirmUploadModal] = useState(false);
@@ -60,7 +60,9 @@ function ScoreManagement() {
 
             const userId = userResponse.data[0]?.id;
             if (!userId) {
-              console.error(`User with username ${item["Student ID"]} not found.`);
+              console.error(
+                `User with username ${item["Student ID"]} not found.`
+              );
               continue;
             }
 
@@ -117,10 +119,10 @@ function ScoreManagement() {
       reader.readAsArrayBuffer(file);
     }
   };
-  
+
   const handleConfirmUpload = () => {
     setShowConfirmUploadModal(false);
-    readUploadFile(selectedFile); 
+    readUploadFile(selectedFile);
   };
 
   const handleFileChange = (event) => {
@@ -129,12 +131,12 @@ function ScoreManagement() {
   };
 
   const handleUpload = (e) => {
-    e.preventDefault();  
+    e.preventDefault();
     if (selectedFile) {
       setIsFileSelected(true);
       setShowConfirmUploadModal(true);
     } else {
-      console.error('No file selected');
+      console.error("No file selected");
     }
   };
 
@@ -370,8 +372,8 @@ function ScoreManagement() {
             <button
               className="btn btn-outline-secondary "
               type="button"
-              onClick={(e) => handleUpload(e)} 
-              style={{ marginLeft: '5px' }}
+              onClick={(e) => handleUpload(e)}
+              style={{ marginLeft: "5px" }}
             >
               Upload
             </button>
@@ -383,6 +385,7 @@ function ScoreManagement() {
             <tr>
               <th>Student</th>
               <th>Score</th>
+              <th>Status</th>
               <th>Seen Datetime</th>
               <th>Acknowledge Datetime</th>
               <th>Acknowledge Status</th>
@@ -395,23 +398,20 @@ function ScoreManagement() {
                 <td>{score.attributes?.student_id}</td>
                 <td>
                   {score.attributes?.score} /{" "}
-                  {(score.attributes?.subject?.data?.attributes?.full_score) ||
+                  {score.attributes?.subject?.data?.attributes?.full_score ||
                     "N/A"}
                 </td>
-                <td>
-                  {formatDatetime(
-                    score.attributes?.seen_datetime
-                  )}
+                <td
+                  className={`status ${
+                    score.attributes.score >= 50 ? "passed" : "failed"
+                  }`}
+                >
+                  {score.attributes.score >= 50 ? "Passed" : "Failed"}
                 </td>
+                <td>{formatDatetime(score.attributes?.seen_datetime)}</td>
+                <td>{formatDatetime(score.attributes?.ack_datetime)}</td>
                 <td>
-                  {formatDatetime(
-                    score.attributes?.ack_datetime
-                  )}
-                </td>
-                <td>
-                  {score.attributes?.ack
-                    ? "Acknowledged"
-                    : "Not Acknowledged"}
+                  {score.attributes?.ack ? "Acknowledged" : "Not Acknowledged"}
                 </td>
                 <td className="text-center">
                   <Button
@@ -542,7 +542,9 @@ function ScoreManagement() {
         <Modal.Header closeButton>
           <Modal.Title>Confirm Upload</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to upload the selected file?</Modal.Body>
+        <Modal.Body>
+          Are you sure you want to upload the selected file?
+        </Modal.Body>
         <Modal.Footer>
           <Button
             variant="secondary"
@@ -555,7 +557,6 @@ function ScoreManagement() {
           </Button>
         </Modal.Footer>
       </Modal>
-
     </div>
   );
 }

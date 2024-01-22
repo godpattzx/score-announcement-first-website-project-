@@ -30,7 +30,9 @@ function HomeS() {
     name: "",
     lecturer: "",
     courseCode: "",
+    type_score: "",
     full_score: "",
+    score_criteria: "",
     description: "",
     publish_at: "",
   });
@@ -93,23 +95,25 @@ function HomeS() {
               <Card style={{ marginBottom: "20px" }}>
                 <Card.Body>
                   <Card.Title>
-                    {item.attributes && item.attributes.name}
+                    {item.attributes?.name}
                   </Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
-                    Lecturer: {item.attributes && item.attributes.Lecturer}
+                    Lecturer: {item.attributes?.Lecturer}
                   </Card.Subtitle>
                   <Card.Text>
-                    {item.attributes &&
-                      item.attributes.description &&
-                      item.attributes.description[0]?.children[0]?.text}
+                    {item.attributes.description[0]?.children[0]?.text}
                   </Card.Text>
                   <Card.Text>
                     <strong>Course Code:</strong>{" "}
-                    {item.attributes && item.attributes.CourseCode}
+                    {item.attributes?.CourseCode}
+                  </Card.Text>
+                  <Card.Text>
+                    <strong>Type Score:</strong>{" "}
+                    {item.attributes?.type_score}
                   </Card.Text>
                   <Card.Text>
                     <strong>Publish Date:</strong>{" "}
-                    {item.attributes && formatDate(item.attributes.publish_at)}
+                    {formatDate(item.attributes?.publish_at)}
                   </Card.Text>
                   <div className="button-group">
                     <Button
@@ -179,14 +183,16 @@ function HomeS() {
             name: editedItem.attributes.name,
             Lecturer: editedItem.attributes.Lecturer,
             CourseCode: editedItem.attributes.CourseCode,
+            type_score: editedItem.attributes.type_score,
             full_score: editedItem.attributes.full_score,
+            score_criteria: editedItem.attributes.score_criteria,
             description: [
               {
                 type: "paragraph",
                 children: [
                   {
                     type: "text",
-                    text: editedItem.attributes.description[0]?.children[0]
+                    text: editedItem.attributes?.description[0]?.children[0]
                       ?.text,
                   },
                 ],
@@ -292,7 +298,9 @@ function HomeS() {
       name: "",
       lecturer: "",
       courseCode: "",
+      type_score: "",
       full_score: 100,
+      score_criteria: 50,
       description: "",
       publish_at: "",
     });
@@ -304,6 +312,7 @@ function HomeS() {
         !newSubjectData.name ||
         !newSubjectData.lecturer ||
         !newSubjectData.courseCode ||
+        !newSubjectData.type_score ||
         !newSubjectData.full_score ||
         !newSubjectData.publish_at
       ) {
@@ -331,7 +340,9 @@ function HomeS() {
             name: newSubjectData.name,
             Lecturer: newSubjectData.lecturer,
             CourseCode: newSubjectData.courseCode,
+            type_score: newSubjectData.type_score,
             full_score: newSubjectData.full_score || 100,
+            score_criteria: newSubjectData.score_criteria,
             description: [
               {
                 type: "paragraph",
@@ -382,7 +393,9 @@ function HomeS() {
         name: "",
         lecturer: "",
         courseCode: "",
+        type_score: "",
         full_score: "",
+        score_criteria: "",
         description: "",
         publish_at: "",
       });
@@ -485,6 +498,24 @@ function HomeS() {
               />
             </Form.Group>
 
+            <Form.Group controlId="formTypescore">
+              <Form.Label>Type Score *</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Type Score"
+                value={editedItem?.attributes?.type_score || ""}
+                onChange={(e) =>
+                  setEditedItem((prevItem) => ({
+                    ...prevItem,
+                    attributes: {
+                      ...prevItem.attributes,
+                      type_score: e.target.value,
+                    },
+                  }))
+                }
+              />
+            </Form.Group>
+
             <Form.Group controlId="formDescription">
               <Form.Label>Description *</Form.Label>
               <Form.Control
@@ -533,6 +564,25 @@ function HomeS() {
                 }
               />
             </Form.Group>
+
+            <Form.Group controlId="formScoreCriteria" style={{ marginTop: "8px" }}>
+              <Form.Label>Score Criteria *</Form.Label>
+              <Form.Control
+                type="int"
+                placeholder="Enter Score Criteria"
+                value={editedItem?.attributes?.score_criteria || ""}
+                onChange={(e) =>
+                  setEditedItem((prevItem) => ({
+                    ...prevItem,
+                    attributes: {
+                      ...prevItem.attributes,
+                      score_criteria: e.target.value,
+                    },
+                  }))
+                }
+              />
+            </Form.Group>
+            
 
             <Form.Group controlId="formPublishAt" style={{ marginTop: "8px" }}>
               <Form.Label>Publish Date *</Form.Label>
@@ -651,6 +701,21 @@ function HomeS() {
               />
             </Form.Group>
 
+            <Form.Group controlId="formTypeScore">
+              <Form.Label>Type Score *</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Type Score"
+                value={newSubjectData.type_score}
+                onChange={(e) =>
+                  setNewSubjectData({
+                    ...newSubjectData,
+                    type_score: e.target.value,
+                  })
+                }
+              />
+            </Form.Group>
+
             <Form.Group controlId="formFullScore">
               <Form.Label>Full Score *</Form.Label>
               <Form.Control
@@ -665,6 +730,22 @@ function HomeS() {
                 }
               />
             </Form.Group>
+
+            <Form.Group controlId="formScoreCriteria" style={{ marginTop: "8px" }}>
+              <Form.Label>Score Criteria *</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter Score Criteria"
+                value={newSubjectData.score_criteria}
+                onChange={(e) =>
+                  setNewSubjectData({
+                    ...newSubjectData,
+                    score_criteria: e.target.value,
+                  })
+                }
+              />
+            </Form.Group>
+
             <Form.Group controlId="formPublishAt" style={{ marginTop: "8px" }}>
               <Form.Label>Publish Date *</Form.Label>
               <Form.Control

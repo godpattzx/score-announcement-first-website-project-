@@ -1,3 +1,12 @@
 .mb-4 {
     margin-bottom: 1.5rem;
   }
+
+
+  .passed {
+    color: green;
+  }
+  
+  .failed {
+    color: red;
+  }

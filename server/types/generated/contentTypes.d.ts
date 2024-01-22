@@ -390,6 +390,8 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
     >;
     full_score: Attribute.Integer & Attribute.DefaultTo<0>;
     publish_at: Attribute.DateTime;
+    type_score: Attribute.String;
+    score_criteria: Attribute.Integer;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

@@ -43,6 +43,12 @@
     },
     "publish_at": {
       "type": "datetime"
+    },
+    "type_score": {
+      "type": "string"
+    },
+    "score_criteria": {
+      "type": "integer"
     }
   }
 }
