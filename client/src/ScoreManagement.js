@@ -436,8 +436,8 @@ function ScoreManagement() {
                   >
                     {score.attributes?.score >=
                     score.attributes?.subject?.data?.attributes?.score_criteria
-                      ? "Passed"
-                      : "Failed"}
+                      ? "Positive"
+                      : "Negative"}
                   </td>
                   <td>{formatDatetime(score.attributes?.seen_datetime)}</td>
                   <td>{formatDatetime(score.attributes?.ack_datetime)}</td>

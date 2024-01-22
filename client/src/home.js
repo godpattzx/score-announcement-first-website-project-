@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format } from "date-fns";
 import "./home.css";
+import passImage from './image/pass.png';
+import failImage from './image/fail.png';
 
 function MainComponent() {
   const [show, setShow] = useState(false);
@@ -20,7 +22,6 @@ function MainComponent() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -240,9 +241,7 @@ function MainComponent() {
               <td>{item.attributes.CourseCode}</td>
               <td>{item.attributes.name}</td>
               <td>
-                {item.attributes.description &&
-                item.attributes.description[0] &&
-                item.attributes.description[0].children[0]
+                {item.attributes?.description[0]?.children[0]
                   ? item.attributes.description[0].children[0].text
                   : ""}
               </td>
@@ -299,7 +298,6 @@ function MainComponent() {
                 {renderTable(paginatedData)}
                 {filteredData.length > itemsPerPage && (
                   <div className="pagination">
-                  
                     {Array.from(
                       { length: Math.ceil(filteredData.length / itemsPerPage) },
                       (_, index) => (
@@ -358,7 +356,7 @@ function MainComponent() {
               <div className="modal-body-content">
                 <div className="header">
                   <p style={{ color: "darkblue" }}>
-                    This is the "{selectedItem.attributes.type_score}" score.
+                     {selectedItem.attributes.type_score} score. 
                   </p>
                   <p>Course Code: {selectedItem.attributes.CourseCode}</p>
                   <p>Subject: {selectedItem.attributes.name}</p>
@@ -379,26 +377,36 @@ function MainComponent() {
                             Score: {score.attributes.score}/
                             {selectedItem.attributes.full_score}
                           </p>
-                          <p
+                          <div
                             className={`status ${
                               score.attributes.score >=
-                              50
+                              selectedItem.attributes.score_criteria
                                 ? "pass"
                                 : "fail"
                             }`}
                           >
                             {score.attributes.score >=
-                            50 ? (
-                              <p>Status: Passed</p>
+                            selectedItem.attributes.score_criteria ? (
+                              <>
+                              
+                                <p>Status: Positive</p>
+                                <img src={passImage}className="status-image"/>
+                               
+                              </>
                             ) : (
-                              <p>Status: Failed</p>
+                              <>
+                                <p>Status: Negative</p>
+                                <img src={failImage} className="status-image"/>
+                              </>
                             )}
-                          </p>
-                          <p className="acknowledged-text">
+                          </div>
+
+                          <p className="acknowledged-text" style={{ marginTop: '13px' }}>
                             {score.attributes.ack
                               ? `Score Acknowledged at: ${format(
                                   new Date(score.attributes.ack_datetime),
                                   "yyyy-MM-dd HH:mm:ss"
+                                  
                                 )}`
                               : "Score not yet acknowledged"}
                           </p>
@@ -422,8 +430,7 @@ function MainComponent() {
               onClick={() => handleAcknowledge()}
               disabled={
                 acknowledged ||
-                (
-                  selectedItem?.attributes?.views.data &&
+                (selectedItem?.attributes?.views.data &&
                   selectedItem?.attributes.views.data?.length > 0 &&
                   selectedItem.attributes.views.data
                     .filter(
