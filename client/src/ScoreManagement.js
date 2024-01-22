@@ -347,6 +347,15 @@ function ScoreManagement() {
       });
     }
   };
+  const handleDownload = () => {
+    const fileUrl = "./components/excelTest.xlsx";
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = "excelTest.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div>
@@ -360,6 +369,15 @@ function ScoreManagement() {
           onClick={handleCreateNewScore}
         >
           Create New Score
+        </Button>
+        <Button
+          variant="primary"
+          size="sm"
+          className="mb-3"
+          style={{ marginLeft: "10px" }}
+          onClick={handleDownload}
+        >
+          Download Form Excel
         </Button>
         <div className="input-group mb-3">
           <input
@@ -393,44 +411,60 @@ function ScoreManagement() {
             </tr>
           </thead>
           <tbody>
-            {studentScores.map((score) => (
-              <tr key={score.id}>
-                <td>{score.attributes?.student_id}</td>
-                <td>
-                  {score.attributes?.score} /{" "}
-                  {score.attributes?.subject?.data?.attributes?.full_score ||
-                    "N/A"}
-                </td>
-                <td
-                  className={`status ${
-                    score.attributes.score >= 50 ? "passed" : "failed"
-                  }`}
-                >
-                  {score.attributes.score >= 50 ? "Passed" : "Failed"}
-                </td>
-                <td>{formatDatetime(score.attributes?.seen_datetime)}</td>
-                <td>{formatDatetime(score.attributes?.ack_datetime)}</td>
-                <td>
-                  {score.attributes?.ack ? "Acknowledged" : "Not Acknowledged"}
-                </td>
-                <td className="text-center">
-                  <Button
-                    variant="info"
-                    size="sm"
-                    onClick={() => handleEdit(score.id)}
+            {studentScores.map((score) => {
+              console.log("Score Object:", score);
+
+              // Log information for debugging
+              console.log("Score ID:", score.id);
+
+              return (
+                <tr key={score.id}>
+                  <td>{score.attributes?.student_id}</td>
+                  <td>
+                    {score.attributes?.score} /{" "}
+                    {score.attributes?.subject?.data?.attributes?.full_score ||
+                      "N/A"}
+                  </td>
+                  <td
+                    className={`status ${
+                      score.attributes?.score >=
+                      score.attributes?.subject?.data?.attributes
+                        ?.score_criteria
+                        ? "passed"
+                        : "failed"
+                    }`}
                   >
-                    Edit
-                  </Button>{" "}
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDelete(score.id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
-              </tr>
-            ))}
+                    {score.attributes?.score >=
+                    score.attributes?.subject?.data?.attributes?.score_criteria
+                      ? "Passed"
+                      : "Failed"}
+                  </td>
+                  <td>{formatDatetime(score.attributes?.seen_datetime)}</td>
+                  <td>{formatDatetime(score.attributes?.ack_datetime)}</td>
+                  <td>
+                    {score.attributes?.ack
+                      ? "Acknowledged"
+                      : "Not Acknowledged"}
+                  </td>
+                  <td className="text-center">
+                    <Button
+                      variant="info"
+                      size="sm"
+                      onClick={() => handleEdit(score.id)}
+                    >
+                      Edit
+                    </Button>{" "}
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(score.id)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </Table>
       </Container>

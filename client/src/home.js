@@ -6,7 +6,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { format } from "date-fns";
 import "./home.css";
 
-
 function MainComponent() {
   const [show, setShow] = useState(false);
   const [dataFromApi1, setDataFromApi1] = useState([]);
@@ -21,7 +20,7 @@ function MainComponent() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = dataFromApi1.slice(indexOfFirstItem, indexOfLastItem);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -214,9 +213,6 @@ function MainComponent() {
     setShow(false);
   };
 
-  const filteredDataFromApi2 = dataFromApi2.filter((item) =>
-    item.attributes.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -303,6 +299,7 @@ function MainComponent() {
                 {renderTable(paginatedData)}
                 {filteredData.length > itemsPerPage && (
                   <div className="pagination">
+                  
                     {Array.from(
                       { length: Math.ceil(filteredData.length / itemsPerPage) },
                       (_, index) => (
@@ -360,7 +357,9 @@ function MainComponent() {
             {selectedItem && (
               <div className="modal-body-content">
                 <div className="header">
-                <p style={{ color: 'darkblue' }}>This is the "{selectedItem.attributes.type_score}" score.</p>
+                  <p style={{ color: "darkblue" }}>
+                    This is the "{selectedItem.attributes.type_score}" score.
+                  </p>
                   <p>Course Code: {selectedItem.attributes.CourseCode}</p>
                   <p>Subject: {selectedItem.attributes.name}</p>
                 </div>
@@ -382,20 +381,18 @@ function MainComponent() {
                           </p>
                           <p
                             className={`status ${
-                              score.attributes.score >= score.attributes.score_criteria 
-                              ? "pass" : "fail"
+                              score.attributes.score >=
+                              50
+                                ? "pass"
+                                : "fail"
                             }`}
                           >
-                            {score.attributes.score >= score.attributes.score_criteria
-                              ? (
-                                <p>
-                                  Status: Passed
-                                </p>
-                              ) : (
-                                <p>
-                                  Status: Failed
-                                </p>
-                              )}
+                            {score.attributes.score >=
+                            50 ? (
+                              <p>Status: Passed</p>
+                            ) : (
+                              <p>Status: Failed</p>
+                            )}
                           </p>
                           <p className="acknowledged-text">
                             {score.attributes.ack
@@ -425,8 +422,8 @@ function MainComponent() {
               onClick={() => handleAcknowledge()}
               disabled={
                 acknowledged ||
-                (selectedItem &&
-                  selectedItem.attributes.views.data &&
+                (
+                  selectedItem?.attributes?.views.data &&
                   selectedItem?.attributes.views.data?.length > 0 &&
                   selectedItem.attributes.views.data
                     .filter(
@@ -450,7 +447,6 @@ function MainComponent() {
                   .some((view) => view.attributes.ack === true)
                   ? "Score Acknowledged"
                   : "Acknowledge")}
-              
             </Button>
           </Modal.Footer>
         </Modal>
