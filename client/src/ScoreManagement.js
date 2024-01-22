@@ -4,8 +4,10 @@ import axios from "axios";
 import { Table, Container, Button, Modal, Form } from "react-bootstrap";
 import NavigationBar from "./components/navbar";
 import * as xlsx from "xlsx";
+import './ScoreManagement.css';
 
 function ScoreManagement() {
+  const [showConfirmUploadModal, setShowConfirmUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isFileSelected, setIsFileSelected] = useState(false);
   const [subjectId, setSubjectId] = useState(null);
@@ -103,11 +105,7 @@ function ScoreManagement() {
           );
           const filteredScores = scoresResponse.data.data.filter(
             (score) =>
-              score.attributes &&
-              score.attributes.subject &&
-              score.attributes.subject.data &&
-              score.attributes.subject.data.attributes &&
-              score.attributes.subject.data.attributes.name === subjectName
+              score.attributes?.subject?.data?.attributes?.name === subjectName
           );
           setStudentScores(filteredScores);
         } catch (error) {
@@ -121,7 +119,8 @@ function ScoreManagement() {
   };
   
   const handleConfirmUpload = () => {
-    setIsFileSelected(false);
+    setShowConfirmUploadModal(false);
+    readUploadFile(selectedFile); 
   };
 
   const handleFileChange = (event) => {
@@ -130,10 +129,10 @@ function ScoreManagement() {
   };
 
   const handleUpload = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();  
     if (selectedFile) {
-      console.log('Uploading file:', selectedFile);
-      readUploadFile(selectedFile);
+      setIsFileSelected(true);
+      setShowConfirmUploadModal(true);
     } else {
       console.error('No file selected');
     }
@@ -178,11 +177,7 @@ function ScoreManagement() {
         );
         const filteredScores = response.data.data.filter(
           (score) =>
-            score.attributes &&
-            score.attributes.subject &&
-            score.attributes.subject.data &&
-            score.attributes.subject.data.attributes &&
-            score.attributes.subject.data.attributes.name === subjectName
+            score.attributes?.subject?.data?.attributes?.name === subjectName
         );
         setStudentScores(filteredScores);
         setSubjectId(
@@ -333,11 +328,7 @@ function ScoreManagement() {
 
       const filteredScores = response.data.data.filter(
         (score) =>
-          score.attributes &&
-          score.attributes.subject &&
-          score.attributes.subject.data &&
-          score.attributes.subject.data.attributes &&
-          score.attributes.subject.data.attributes.name === subjectName
+          score?.attributes?.subject?.data?.attributes?.name === subjectName
       );
 
       setStudentScores(filteredScores);
@@ -377,24 +368,16 @@ function ScoreManagement() {
           />
           <div className="input-group-append">
             <button
-              className="btn btn-outline-secondary"
+              className="btn btn-outline-secondary "
               type="button"
-              onClick={handleUpload}
+              onClick={(e) => handleUpload(e)} 
+              style={{ marginLeft: '5px' }}
             >
               Upload
             </button>
           </div>
         </div>
-        {isFileSelected && (
-          <Button
-            variant="info"
-            size="sm"
-            className="ml-2"
-            onClick={handleConfirmUpload}
-          >
-            Confirm Upload
-          </Button>
-        )}
+
         <Table striped bordered hover responsive>
           <thead>
             <tr>
@@ -409,28 +392,24 @@ function ScoreManagement() {
           <tbody>
             {studentScores.map((score) => (
               <tr key={score.id}>
-                <td>{score.attributes && score.attributes.student_id}</td>
+                <td>{score.attributes?.student_id}</td>
                 <td>
-                  {score.attributes && score.attributes.score} /{" "}
-                  {(score.attributes &&
-                    score.attributes.subject &&
-                    score.attributes.subject.data &&
-                    score.attributes.subject.data.attributes &&
-                    score.attributes.subject.data.attributes.full_score) ||
+                  {score.attributes?.score} /{" "}
+                  {(score.attributes?.subject?.data?.attributes?.full_score) ||
                     "N/A"}
                 </td>
                 <td>
                   {formatDatetime(
-                    score.attributes && score.attributes.seen_datetime
+                    score.attributes?.seen_datetime
                   )}
                 </td>
                 <td>
                   {formatDatetime(
-                    score.attributes && score.attributes.ack_datetime
+                    score.attributes?.ack_datetime
                   )}
                 </td>
                 <td>
-                  {score.attributes && score.attributes.ack
+                  {score.attributes?.ack
                     ? "Acknowledged"
                     : "Not Acknowledged"}
                 </td>
@@ -555,6 +534,28 @@ function ScoreManagement() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <Modal
+        show={showConfirmUploadModal}
+        onHide={() => setShowConfirmUploadModal(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Upload</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to upload the selected file?</Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowConfirmUploadModal(false)}
+          >
+            Cancel
+          </Button>
+          <Button variant="info" onClick={handleConfirmUpload}>
+            Confirm Upload
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 }

@@ -438,7 +438,7 @@ function MainComponent() {
                   .some((view) => view.attributes.ack === true)
                   ? "Score Acknowledged"
                   : "Acknowledge")}
-              )
+              
             </Button>
           </Modal.Footer>
         </Modal>

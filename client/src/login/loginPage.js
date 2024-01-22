@@ -22,7 +22,6 @@ const LoginForm = () => {
   const [submitEnabled, setSubmitEnabled] = useState(true);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
@@ -80,9 +79,6 @@ const LoginForm = () => {
 
   const handleGoogleLoginClick = () => {
     window.location.href = "http://localhost:1337/api/connect/google";
-  };
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (

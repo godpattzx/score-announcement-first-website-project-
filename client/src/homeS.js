@@ -15,6 +15,9 @@ import "./homeS.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format } from 'date-fns';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function HomeS() {
   const [data, setData] = useState([]);
@@ -149,6 +152,7 @@ function HomeS() {
 
   const handleScoreManagement = (subjectName) => {
     navigate(`/score-management/${subjectName}`);
+    toast.info(`Announcing scores for ${subjectName}`);
   };
 
   const handleEdit = (item) => {
@@ -388,8 +392,10 @@ function HomeS() {
   };
 
   return (
+    
     <div>
       <NavigationBar />
+      <ToastContainer />
       <Container>
         <h3 className="mb-3">Staff-Management</h3>
         <Row>
