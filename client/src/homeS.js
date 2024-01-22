@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import "./homeS.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { format } from 'date-fns';
 
 function HomeS() {
   const [data, setData] = useState([]);
@@ -196,6 +197,7 @@ function HomeS() {
           },
         }
       );
+      console.log(editedItem.attributes.publish_at);
 
       const fetchData = async () => {
         try {
@@ -222,13 +224,12 @@ function HomeS() {
     handleEditModalClose();
   };
 
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    return format(date, 'yyyy-MM-dd HH:mm');
   };
+  
 
   const handleDelete = (itemId) => {
     const itemToDelete = data.find((item) => item.id === itemId);
@@ -287,9 +288,9 @@ function HomeS() {
       name: "",
       lecturer: "",
       courseCode: "",
-      full_score: 100, 
+      full_score: 100,
       description: "",
-      publish_at: "2024-01-01",
+      publish_at: "",
     });
   };
 
@@ -530,8 +531,8 @@ function HomeS() {
             <Form.Group controlId="formPublishAt" style={{ marginTop: "8px" }}>
               <Form.Label>Publish Date *</Form.Label>
               <Form.Control
-                type="date"
-                value={formatDate(editedItem?.attributes?.publish_at) || ""}
+                type="datetime-local"
+                value={editedItem?.attributes?.publish_at || ""}
                 onChange={(e) =>
                   setEditedItem((prevItem) => ({
                     ...prevItem,
@@ -661,7 +662,7 @@ function HomeS() {
             <Form.Group controlId="formPublishAt" style={{ marginTop: "8px" }}>
               <Form.Label>Publish Date *</Form.Label>
               <Form.Control
-                type="date"
+                type="datetime-local"
                 value={newSubjectData.publish_at}
                 onChange={(e) =>
                   setNewSubjectData({

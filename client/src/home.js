@@ -15,7 +15,12 @@ function MainComponent() {
   const [acknowledged, setAcknowledged] = useState(false);
   const [isButtonDisabled, setButtonDisabled] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-    
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentData = dataFromApi1.slice(indexOfFirstItem, indexOfLastItem);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,11 +76,11 @@ function MainComponent() {
     try {
       const authToken = localStorage.getItem("authToken");
       const username = localStorage.getItem("username");
-  
+
       console.log("Received Item:", selectedItem);
       const itemAttributes = selectedItem.attributes;
       console.log("Item Attributes:", itemAttributes);
-  
+
       if (
         itemAttributes &&
         itemAttributes.views &&
@@ -86,7 +91,7 @@ function MainComponent() {
         const userView = itemAttributes.views.data.find(
           (view) => view.attributes.student_id === username
         );
-  
+
         if (userView) {
           if (!userView.attributes.ack) {
             const acknowledgeResponse = await axios.get(
@@ -97,7 +102,7 @@ function MainComponent() {
                 },
               }
             );
-  
+
             console.log("Acknowledge API Response:", acknowledgeResponse.data);
             toast.success("You have acknowledged your score successfully!");
             setAcknowledged(true);
@@ -121,12 +126,12 @@ function MainComponent() {
       }
     } catch (error) {
       console.error("Acknowledge API Error:", error);
-  
+
       const errorMessage =
         error.response && error.response.data
           ? error.response.data.message
           : "Unknown error";
-  
+
       toast.error(`Error acknowledging your score: ${errorMessage}`, {
         position: toast.POSITION.TOP_CENTER,
       });
@@ -134,11 +139,11 @@ function MainComponent() {
       handleClose();
     }
   };
-  
-  
+
   const handleShow = async (item) => {
     setAcknowledged(false);
     setSelectedItem(item);
+    console.log("Selected Item:", selectedItem);
 
     if (item.attributes.publishedAt) {
       const currentTime = new Date();
@@ -211,6 +216,71 @@ function MainComponent() {
   const filteredDataFromApi2 = dataFromApi2.filter((item) =>
     item.attributes.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const renderTable = (data, isViewTab = false) => (
+    <div className="table-responsive mb-4">
+      <table className="table table-striped table-hover table-bordered">
+        <thead className="thead-dark">
+          <tr>
+            <th>Course Code</th>
+            <th>Subject</th>
+            <th>Description</th>
+            <th>Lecturer</th>
+            {isViewTab ? (
+              <th className="text-center">Action</th>
+            ) : (
+              <th className="text-center">Publish Date</th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td>{item.attributes.CourseCode}</td>
+              <td>{item.attributes.name}</td>
+              <td>
+                {item.attributes.description &&
+                item.attributes.description[0] &&
+                item.attributes.description[0].children[0]
+                  ? item.attributes.description[0].children[0].text
+                  : ""}
+              </td>
+              <td>{item.attributes.Lecturer}</td>
+              <td>
+                {isViewTab ? (
+                  <Button
+                    className="button-view-score text-center"
+                    style={{ display: "block", margin: "auto" }}
+                    onClick={() => handleShow(item)}
+                  >
+                    <span>View Score</span>
+                  </Button>
+                ) : (
+                  <span style={{ display: "block", textAlign: "center" }}>
+                    {format(
+                      new Date(item.attributes.publish_at),
+                      "yyyy-MM-dd HH:mm:ss"
+                    )}
+                  </span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const filteredData = searchTerm
+    ? dataFromApi1.filter((item) =>
+        item.attributes.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : dataFromApi1;
+
+  const paginatedData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <div className="container">
@@ -225,45 +295,32 @@ function MainComponent() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            {dataFromApi1.length > 0 ? (
-              <div className="table-responsive mb-4">
-                <table className="table table-striped table-hover table-bordered">
-                  <thead className="thead-dark">
-                    <tr>
-                      <th>Course Code</th>
-                      <th>Subject</th>
-                      <th>Description</th>
-                      <th>Lecturer</th>
-                      <th>Publish Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dataFromApi1.map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.attributes.CourseCode}</td>
-                        <td>{item.attributes.name}</td>
-                        <td>
-                          {item.attributes.description &&
-                          item.attributes.description[0] &&
-                          item.attributes.description[0].children[0]
-                            ? item.attributes.description[0].children[0].text
-                            : ""}
-                        </td>
-                        <td>{item.attributes.Lecturer}</td>
-                        <td>
-                          {format(
-                            new Date(item.attributes.publish_at),
-                            "yyyy-MM-dd HH:mm:ss"
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            {filteredData.length > 0 ? (
+              <>
+                {renderTable(paginatedData)}
+                {filteredData.length > itemsPerPage && (
+                  <div className="pagination">
+                    {Array.from(
+                      { length: Math.ceil(filteredData.length / itemsPerPage) },
+                      (_, index) => (
+                        <Button
+                          key={index + 1}
+                          className={`page-link ${
+                            index + 1 === currentPage ? "active" : ""
+                          }`}
+                          onClick={() => paginate(index + 1)}
+                        >
+                          {index + 1}
+                        </Button>
+                      )
+                    )}
+                  </div>
+                )}
+              </>
             ) : (
               <p className="no-scores-message">
-                No scores available for you to view.
+                There are no scores for you. Please contact the course
+                instructor.
               </p>
             )}
           </div>
@@ -279,44 +336,12 @@ function MainComponent() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            {filteredDataFromApi2.length > 0 ? (
-              <div className="table-responsive mb-4">
-                <table className="table table-striped table-hover table-bordered">
-                  <thead className="thead-dark">
-                    <tr>
-                      <th>Course Code</th>
-                      <th>Subject</th>
-                      <th>Description</th>
-                      <th>Lecturer</th>
-                      <th className="text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDataFromApi2.map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.attributes.CourseCode}</td>
-                        <td>{item.attributes.name}</td>
-                        <td>
-                          {item.attributes.description[0]?.children[0]?.text ||
-                            ""}
-                        </td>
-                        <td>{item.attributes.Lecturer}</td>
-                        <td className="table-column-button">
-                          <Button
-                            className="button-view-score"
-                            onClick={() => handleShow(item)}
-                          >
-                            View Score
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            {dataFromApi2.length > 0 ? (
+              <>{renderTable(dataFromApi2, true)},</>
             ) : (
               <p className="no-scores-message">
-                No scores available for you to view.
+                There are no scores for you. Please contact the course
+                instructor.
               </p>
             )}
           </div>
@@ -382,15 +407,39 @@ function MainComponent() {
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
-     
-            <Button
-  variant="outline-secondary"
-  onClick={() => handleAcknowledge()}
-  disabled={acknowledged || selectedItem?.attributes.views.data[0]?.attributes.ack === true}
->
-  {acknowledged || selectedItem?.attributes.views.data[0]?.attributes.ack ? "Score Acknowledged" : "Acknowledge"}
-</Button>
 
+            <Button
+              variant="outline-secondary"
+              onClick={() => handleAcknowledge()}
+              disabled={
+                acknowledged ||
+                (selectedItem &&
+                  selectedItem.attributes.views.data &&
+                  selectedItem?.attributes.views.data?.length > 0 &&
+                  selectedItem.attributes.views.data
+                    .filter(
+                      (view) =>
+                        view.attributes.student_id ===
+                        localStorage.getItem("username")
+                    )
+                    .some((view) => view.attributes.ack === true))
+              }
+            >
+              {acknowledged ||
+                (selectedItem &&
+                selectedItem.attributes.views.data &&
+                selectedItem.attributes.views.data.length > 0 &&
+                selectedItem.attributes.views.data
+                  .filter(
+                    (view) =>
+                      view.attributes.student_id ===
+                      localStorage.getItem("username")
+                  )
+                  .some((view) => view.attributes.ack === true)
+                  ? "Score Acknowledged"
+                  : "Acknowledge")}
+              )
+            </Button>
           </Modal.Footer>
         </Modal>
       </div>
@@ -398,4 +447,4 @@ function MainComponent() {
   );
 }
 
-export default MainComponent;
+export { MainComponent };

@@ -185,3 +185,29 @@ body {
   .search-input::after:hover {
     color: #333;
   }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .pagination button {
+    background-color: #3498db;
+    color: #fff;
+    border: none; 
+    padding: 4px 10px; 
+    margin: 0 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 4px; 
+  }
+  
+  .pagination button:hover {
+    background-color: #2980b9;
+  }
+  
+  .pagination button.active {
+    background-color: #007bff;
+    color: #fff;
+}
