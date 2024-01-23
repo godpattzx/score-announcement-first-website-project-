@@ -3,10 +3,11 @@ import { Button, Modal, Tab, Tabs } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { format } from "date-fns";
+
 import "./home.css";
-import passImage from './image/pass.png';
-import failImage from './image/fail.png';
+
+import SubjectTable from "../components/Home/SubjectTable";
+import ScoreDetailsModal from "../components/Home/ScoreDetailsModal";
 
 function MainComponent() {
   const [show, setShow] = useState(false);
@@ -219,57 +220,12 @@ function MainComponent() {
   };
 
   const renderTable = (data, isViewTab = false) => (
-    <div className="table-responsive mb-4">
-      <table className="table table-striped table-hover table-bordered">
-        <thead className="thead-dark">
-          <tr>
-            <th>Course Code</th>
-            <th>Subject</th>
-            <th>Description</th>
-            <th>Type Score</th>
-            <th>Lecturer</th>
-            {isViewTab ? (
-              <th className="text-center">Action</th>
-            ) : (
-              <th className="text-center">Publish Date</th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, index) => (
-            <tr key={index}>
-              <td>{item.attributes.CourseCode}</td>
-              <td>{item.attributes.name}</td>
-              <td>
-                {item.attributes?.description[0]?.children[0]
-                  ? item.attributes.description[0].children[0].text
-                  : ""}
-              </td>
-              <td>{item.attributes.type_score}</td>
-              <td>{item.attributes.Lecturer}</td>
-              <td>
-                {isViewTab ? (
-                  <Button
-                    className="button-view-score text-center"
-                    style={{ display: "block", margin: "auto" }}
-                    onClick={() => handleShow(item)}
-                  >
-                    <span>View Score</span>
-                  </Button>
-                ) : (
-                  <span style={{ display: "block", textAlign: "center" }}>
-                    {format(
-                      new Date(item.attributes.publish_at),
-                      "yyyy-MM-dd HH:mm:ss"
-                    )}
-                  </span>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <SubjectTable
+      data={data}
+      isViewTab={isViewTab}
+      handleShow={handleShow}
+      searchTerm={searchTerm}
+    />
   );
 
   const filteredData = searchTerm
@@ -346,117 +302,14 @@ function MainComponent() {
         </Tab>
       </Tabs>
       <div className="model_box">
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Score Details</Modal.Title>
-          </Modal.Header>
-
-          <Modal.Body>
-            {selectedItem && (
-              <div className="modal-body-content">
-                <div className="header">
-                  <p style={{ color: "darkblue" }}>
-                     {selectedItem.attributes.type_score} score. 
-                  </p>
-                  <p>Course Code: {selectedItem.attributes.CourseCode}</p>
-                  <p>Subject: {selectedItem.attributes.name}</p>
-                </div>
-
-                <div className="scores">
-                  {selectedItem.attributes.views.data &&
-                  selectedItem.attributes.views.data.length > 0 ? (
-                    selectedItem.attributes.views.data
-                      .filter(
-                        (score) =>
-                          score.attributes.student_id ===
-                          localStorage.getItem("username")
-                      )
-                      .map((score) => (
-                        <div key={score.id} className="score-item">
-                          <p>
-                            Score: {score.attributes.score}/
-                            {selectedItem.attributes.full_score}
-                          </p>
-                          <div
-                            className={`status ${
-                              score.attributes.score >=
-                              selectedItem.attributes.score_criteria
-                                ? "pass"
-                                : "fail"
-                            }`}
-                          >
-                            {score.attributes.score >=
-                            selectedItem.attributes.score_criteria ? (
-                              <>
-                              
-                                <p>Status: Positive</p>
-                                <img src={passImage}className="status-image"/>
-                               
-                              </>
-                            ) : (
-                              <>
-                                <p>Status: Negative</p>
-                                <img src={failImage} className="status-image"/>
-                              </>
-                            )}
-                          </div>
-
-                          <p className="acknowledged-text" style={{ marginTop: '13px' }}>
-                            {score.attributes.ack
-                              ? `Score Acknowledged at: ${format(
-                                  new Date(score.attributes.ack_datetime),
-                                  "yyyy-MM-dd HH:mm:ss"
-                                  
-                                )}`
-                              : "Score not yet acknowledged"}
-                          </p>
-                        </div>
-                      ))
-                  ) : (
-                    <p>No scores available for this subject.</p>
-                  )}
-                </div>
-              </div>
-            )}
-          </Modal.Body>
-
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-              Close
-            </Button>
-
-            <Button
-              variant="outline-secondary"
-              onClick={() => handleAcknowledge()}
-              disabled={
-                acknowledged ||
-                (selectedItem?.attributes?.views.data &&
-                  selectedItem?.attributes.views.data?.length > 0 &&
-                  selectedItem.attributes.views.data
-                    .filter(
-                      (view) =>
-                        view.attributes.student_id ===
-                        localStorage.getItem("username")
-                    )
-                    .some((view) => view.attributes.ack === true))
-              }
-            >
-              {acknowledged ||
-                (selectedItem &&
-                selectedItem.attributes.views.data &&
-                selectedItem.attributes.views.data.length > 0 &&
-                selectedItem.attributes.views.data
-                  .filter(
-                    (view) =>
-                      view.attributes.student_id ===
-                      localStorage.getItem("username")
-                  )
-                  .some((view) => view.attributes.ack === true)
-                  ? "Score Acknowledged"
-                  : "Acknowledge")}
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <ScoreDetailsModal
+          show={show}
+          handleClose={handleClose}
+          selectedItem={selectedItem}
+          handleAcknowledge={handleAcknowledge}
+          acknowledged={acknowledged}
+          isButtonDisabled={isButtonDisabled}
+        />
       </div>
     </div>
   );

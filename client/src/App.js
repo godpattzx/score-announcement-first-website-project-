@@ -1,5 +1,5 @@
 import NavigationBar from "./components/navbar"
-import { MainComponent as Users } from "./home";
+import { MainComponent as Users } from "./web_page/home";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 

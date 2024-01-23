@@ -32,16 +32,6 @@ const LoginRedirect = () => {
         );
 
         setTimeout(() => navigate("/student"), 1000);  
-        toast.success("Login success!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: false,
-          progress: undefined,
-          theme: "colored",
-        });
       })
       .catch((err) => {
         console.log(err);
