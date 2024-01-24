@@ -1,8 +1,6 @@
 // SimpleLoginForm.js
 import React, { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
-//import { GoogleLogin } from 'react-google-login';
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,10 +10,12 @@ import "./loginPage.css";
 import BackgroundImage from "../image/image-from-rawpixel-id-2909890-jpeg.jpg";
 import Logo from "../image/psu1.png";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { jwtDecode } from "jwt-decode";
+import conf from '../conf/main';
+import { useAuth } from "../Auth/AuthContext";
 
 
 const LoginForm = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -35,24 +35,34 @@ const LoginForm = () => {
     e.preventDefault();
     setSubmitEnabled(false);
     setLoading(true);
-
+  
     try {
-      let result = await axios.post("http://localhost:1337/api/auth/local", {
+      let result = await axios.post(`${conf.apiUrlPrefix}${conf.loginEndpoint}`, {
         identifier: username,
         password: password,
       });
       axiosConfig.jwt = result.data.jwt;
       localStorage.setItem("authToken", result.data.jwt);
-      localStorage.setItem("username", result.data.user.username);
-
-      result = await axios.get(
-        "http://localhost:1337/api/users/me?populate=role"
-      );
+  
+      result = await axios.get(`${conf.apiUrlPrefix}${conf.jwtUserRoleEndpoint}`);
+      console.log(result.data.username)
+  
       if (result.data.role) {
         if (result.data.role.name === "Student") {
           navigate("/student");
+          if (result.data.username) {
+            login(result.data.username);
+          } else {
+            console.error("User information is incomplete:", result.data.user);
+          }
         } else if (result.data.role.name === "Staff") {
           navigate("/staff");
+          if (result.data.username) {
+            login(result.data.username);
+          } else {
+            // Handle the case when user information is not available
+            console.error("User information is incomplete:", result.data.user);
+          }
         }
         setLoading(false);
         toast.success("Login success!", {
@@ -68,7 +78,7 @@ const LoginForm = () => {
         console.log("User Information:", result.data);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       console.log("wrong username & password");
       setShow(true);
     } finally {
@@ -76,13 +86,13 @@ const LoginForm = () => {
       setSubmitEnabled(true);
     }
   };
-
+  
   const handleGoogleLoginClick = () => {
-    window.location.href = "http://localhost:1337/api/connect/google";
+    window.location.href = `${conf.apiUrlPrefix}${conf.googleConnectEndpoint}`;
   };
 
   return (
-    <GoogleOAuthProvider clientId="956646024955-8m429gqtoufr4e2lgri7p9kjmjlpaf53.apps.googleusercontent.com">
+  
       <div
        
        className="sign-in__wrapper "
@@ -181,7 +191,7 @@ const LoginForm = () => {
           pann-project | &copy;2024
         </div>
       </div>
-    </GoogleOAuthProvider>
+
   );
 };
 

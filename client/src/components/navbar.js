@@ -1,79 +1,48 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Navbar, Nav, Button, Modal } from "react-bootstrap";
-import axios from "axios";
 import "./navbar.css";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../image/PSU Logo-01.png";
+import { useAuth } from "../Auth/AuthContext";
 
 const NavigationBar = () => {
-  const [userData, setUserData] = useState(null);
+  const { isAuthenticated, user, logout } = useAuth();
+
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleShowLogoutModal = () => setShowLogoutModal(true);
   const handleCloseLogoutModal = () => setShowLogoutModal(false);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const authToken = localStorage.getItem("authToken");
-
-        if (authToken) {
-          const response = await axios.get(
-            "http://localhost:1337/api/users/me?populate=role",
-            {
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-              },
-            }
-          );
-
-          setUserData(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("username");
+    logout();
+    handleCloseLogoutModal();
     window.location.href = "/login";
   };
 
   return (
     <>
       <Navbar expand="lg">
-      <Navbar.Brand href="/student">
+        <Navbar.Brand href="/student">
           <img
             src={logo}
             alt="Your Logo Alt Text"
-          
             className="d-inline-block align-top"
-            style={{ maxHeight: '45px' }}
+            style={{ maxHeight: "45px" }}
           />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto">
             <Nav.Link href="/student">Home</Nav.Link>
-            {userData ? (
-              userData.role && userData.role.type === "staff" ? (
-                <Nav.Link href="/staff">Staff Management</Nav.Link>
-              ) : (
-                <></>
-              )
-            ) : null
-             
-            }
+            {isAuthenticated && user?.role?.type === "staff" ? (
+              <Nav.Link href="/staff">Staff Management</Nav.Link>
+            ) : null}
           </Nav>
           <Nav className="right-align">
-            {userData ? (
+            {isAuthenticated ? (
               <>
                 <Navbar.Text className="mr-5 sign-in-as">
-                  Sign in as: {userData.username}
+                  Sign in as: {user}
                 </Navbar.Text>
                 <Button
                   variant="outline-danger"

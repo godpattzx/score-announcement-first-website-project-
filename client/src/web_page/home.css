@@ -217,17 +217,14 @@ body {
 
 }
 
-.pass .status-image {
-  border: 2px solid green; 
-  border-radius: 50%; 
+.positive p {
+  color: green; 
 }
 
-
-.fail .status-image {
-  border: 2px solid red; 
-  border-radius: 50%; 
+.negative p {
+  color: red; 
 }
-.neutral .status-image {
-  border: 2px solid gray; 
-  border-radius: 50%; 
+
+.neutral p {
+  color: gray; 
 }

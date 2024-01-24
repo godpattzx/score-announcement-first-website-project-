@@ -9,7 +9,12 @@ import "./home.css";
 import SubjectTable from "../components/Home/SubjectTable";
 import ScoreDetailsModal from "../components/Home/ScoreDetailsModal";
 
+import conf from '../conf/main';
+
+import { useAuth } from "../Auth/AuthContext";
+
 function MainComponent() {
+  
   const [show, setShow] = useState(false);
   const [dataFromApi1, setDataFromApi1] = useState([]);
   const [dataFromApi2, setDataFromApi2] = useState([]);
@@ -23,12 +28,15 @@ function MainComponent() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  
+  const { isAuthenticated } = useAuth(); 
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const api1Response = await axios.get(
-          "http://localhost:1337/api/subjects"
+          `${conf.apiUrlPrefix}${conf.subjectsEndpoint}`
         );
 
         setDataFromApi1(api1Response.data.data);
@@ -83,13 +91,10 @@ function MainComponent() {
       const itemAttributes = selectedItem.attributes;
       console.log("Item Attributes:", itemAttributes);
 
-      if (
-        itemAttributes &&
-        itemAttributes.views &&
-        Array.isArray(itemAttributes.views.data) &&
+      if (Array.isArray(itemAttributes?.views?.data) &&
         itemAttributes.views.data.length > 0
       ) {
-        // Find the view that matches the logged-in user's username
+        
         const userView = itemAttributes.views.data.find(
           (view) => view.attributes.student_id === username
         );

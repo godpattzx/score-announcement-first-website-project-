@@ -22,13 +22,14 @@ const ScoreDetailsModal = ({
       {selectedItem && (
         <div className="modal-body-content">
           <div className="header">
-            <p style={{ color: "darkblue" }}>
+            <p style={{ color: "darkblue" , fontWeight:'700'}}>
               {selectedItem.attributes.type_score} score.
             </p>
+            <hr/>
             <p>Course Code: {selectedItem.attributes.CourseCode}</p>
             <p>Subject: {selectedItem.attributes.name}</p>
           </div>
-
+        <hr/>
           <div className="scores">
             {selectedItem.attributes.views.data.length > 0 ? (
               selectedItem?.attributes?.views.data
@@ -69,6 +70,7 @@ const ScoreDetailsModal = ({
                         </>
                       )}
                     </div>
+                    <hr/>
                     <p className="acknowledged-text" style={{ marginTop: '13px' }}>
                       {score.attributes.ack
                         ? `Score Acknowledged at: ${format(
@@ -77,6 +79,7 @@ const ScoreDetailsModal = ({
                           )}`
                         : "Score not yet acknowledged"}
                     </p>
+                    <hr/>
                   </div>
                 ))
             ) : (

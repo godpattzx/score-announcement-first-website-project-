@@ -13,11 +13,13 @@ import LoginRedirect from "./login/LoginRedirect";
 import "mdb-react-ui-kit/dist/css/mdb.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import ScoreManagement from "./web_page/ScoreManagement";
+import { AuthProvider } from "./Auth/AuthContext";
 
 
 const AppRouter = () => {
   const userRole = "student"; 
   return (
+<AuthProvider>
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -36,6 +38,7 @@ const AppRouter = () => {
         />
       </Routes>
     </Router>
+    </AuthProvider>
   );
 };
 
