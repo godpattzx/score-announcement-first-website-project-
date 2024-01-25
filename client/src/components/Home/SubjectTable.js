@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import { format } from "date-fns";
 
-const SubjectTable = ({ data, isViewTab, handleShow, searchTerm, paginate, currentPage, itemsPerPage }) => (
+const SubjectTable = ({ data, isViewTab, handleShow, }) => (
   <div className="table-responsive mb-4">
     <table className="table table-striped table-hover table-bordered">
       <thead className="thead-dark">

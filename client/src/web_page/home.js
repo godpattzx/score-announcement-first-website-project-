@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Button, Modal, Tab, Tabs } from "react-bootstrap";
+import React, { useState, useEffect, useContext } from "react";
+import { Button, Tab, Tabs } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,7 +11,7 @@ import ScoreDetailsModal from "../components/Home/ScoreDetailsModal";
 
 import conf from '../conf/main';
 
-import { useAuth } from "../Auth/AuthContext";
+import { AuthContext } from "../Auth/AuthContext";
 
 function MainComponent() {
   
@@ -29,7 +29,7 @@ function MainComponent() {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   
-  const { isAuthenticated } = useAuth(); 
+  const { user, role, logout } = useContext(AuthContext);  
 
 
   useEffect(() => {

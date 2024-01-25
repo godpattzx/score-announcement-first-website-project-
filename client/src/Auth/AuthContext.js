@@ -1,57 +1,111 @@
-// AuthContext.js
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { useEffect } from 'react';
+import { useSetState } from 'react-use';
+import conf from '../conf/main';
+import ax, { axData } from '../conf/ax';
 
-const AuthContext = createContext();
+export const AuthContext = React.createContext(null);
 
-export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null);
+const initialState = {
+  isLoggedIn: false,
+  user: null,
+  isLoginPending: false,
+  loginError: null,
+};
+
+const updateJwt = (jwt) => {
+  axData.jwt = jwt;
+  if (jwt) {
+    sessionStorage.setItem(conf.jwtSessionStorageKey, jwt);
+  } else {
+    sessionStorage.removeItem(conf.jwtSessionStorageKey);
+  }
+};
+
+export const ContextProvider = (props) => {
+  const [state, setState] = useSetState(initialState);
+
+  const setLoginPending = (isLoginPending) => setState({ isLoginPending });
+  const setLoginSuccess = (isLoggedIn, user) =>
+    setState({ isLoggedIn, user }); 
+  const setLoginError = (loginError) => setState({ loginError });
+
+  const handleLoginResult = (error, result) => {
+    setLoginPending(false);
+
+    if (result&& result.user) {
+      if (result.jwt) {
+        updateJwt(result.jwt);
+      }
+      setLoginSuccess(true, result.user); 
+      console.log(result.user.username, result.user.role.name)
+    } else if (error) {
+      setLoginError(error);
+    }
+  };
 
   useEffect(() => {
-  
-    const storedAuth = localStorage.getItem("isAuthenticated");
-    const storedUser = localStorage.getItem("user");
-    const storedRole = localStorage.getItem("role"); 
-
-    if (storedAuth && storedUser) {
-      setIsAuthenticated(true);
-      setUser(storedUser);
-      setRole(storedRole);
-    }
+    setLoginPending(true);
+    loadPersistedJwt(handleLoginResult);
   }, []);
 
-  const login = (userData) => {
-    setIsAuthenticated(true);
-    setUser(userData.username);
-    setRole(userData.role.name);
-    console.log('AuthContext Check : ',userData);
- 
-  
-    localStorage.setItem("isAuthenticated", true);
-    localStorage.setItem("user", userData.username);
-    localStorage.setItem("role", userData.role.name); 
+  const login = (username, password) => {
+    setLoginPending(true);
+    setLoginSuccess(false);
+    setLoginError(null);
+
+    fetchLogin(username, password, handleLoginResult);
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-    setRole(null);
-
-
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("user");
-    localStorage.removeItem("role");
-    localStorage.removeItem("authToken")
+    setLoginPending(false);
+    updateJwt(null);
+    setLoginSuccess(false);
+    setLoginError(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login,role, logout }}>
-      {children}
+    <AuthContext.Provider
+      value={{
+        state,
+        login,
+        logout,
+      }}
+    >
+      {props.children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
+const fetchLogin = async (username, password, callback) => {
+  try {
+    const response = await ax.post(conf.loginEndpoint, {
+      identifier: username,
+      password: password,
+    });
+    if (response.data.jwt && response.data.user.id > 0) {
+      callback(null, response.data.user); 
+      console.log(response.data.user);
+      callback(new Error('Invalid username and password'));
+    }
+  } catch (e) {
+    callback(new Error('Fail to initiate login'));
+  }
+};
+
+const loadPersistedJwt = async (callback) => {
+  try {
+    const persistedJwt = sessionStorage.getItem(conf.jwtSessionStorageKey);
+    if (persistedJwt) {
+      axData.jwt = persistedJwt;
+      const response = await ax.get(conf.jwtUserRoleEndpoint);
+      if (response.data.id > 0) {
+        callback(null, { user: response.data });
+      } else {
+        callback(null);
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    callback(new Error('Fail to initiate auto login'));
+  }
 };

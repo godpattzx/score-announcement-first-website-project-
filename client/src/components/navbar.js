@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Navbar, Nav, Button, Modal } from "react-bootstrap";
 import "./navbar.css";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../image/PSU Logo-01.png";
-import { useAuth } from "../Auth/AuthContext";
+import { AuthContext } from '../Auth/AuthContext';
 
-const NavigationBar = () => {
-  const { isAuthenticated, user, logout,role } = useAuth();
-
+const NavigationBar = () => { 
+  const { state: ContextState, logout } = useContext(AuthContext);
+  const { user } = ContextState;
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleShowLogoutModal = () => setShowLogoutModal(true);
@@ -34,15 +34,15 @@ const NavigationBar = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto">
             <Nav.Link href="/student">Home</Nav.Link>
-            {isAuthenticated && role === "Staff" ? (
+            {user?.role?.name === "Staff" ? (
               <Nav.Link href="/staff">Staff Management</Nav.Link>
             ) : null}
           </Nav>
           <Nav className="right-align">
-            {isAuthenticated ? (
+            { user?.role ? (
               <>
                 <Navbar.Text className="mr-5 sign-in-as">
-                  Sign in as: {user}
+                  Sign in as: {user.username} ({user.role.name})
                 </Navbar.Text>
                 <Button
                   variant="outline-danger"
