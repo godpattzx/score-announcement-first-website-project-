@@ -46,21 +46,20 @@ const LoginForm = () => {
   
       result = await axios.get(`${conf.apiUrlPrefix}${conf.jwtUserRoleEndpoint}`);
       console.log(result.data.username)
-  
+      login(result.data);
       if (result.data.role) {
         if (result.data.role.name === "Student") {
           navigate("/student");
           if (result.data.username) {
-            login(result.data.username);
+            
           } else {
             console.error("User information is incomplete:", result.data.user);
           }
         } else if (result.data.role.name === "Staff") {
           navigate("/staff");
           if (result.data.username) {
-            login(result.data.username);
+        
           } else {
-            // Handle the case when user information is not available
             console.error("User information is incomplete:", result.data.user);
           }
         }

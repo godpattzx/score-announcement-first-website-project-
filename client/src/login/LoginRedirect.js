@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";  // Change here
 import 'react-toastify/dist/ReactToastify.css';
-import { toast } from 'react-toastify'; 
 
 
 const backendUrl = "http://localhost:1337";
@@ -9,11 +8,10 @@ const backendUrl = "http://localhost:1337";
 const LoginRedirect = () => {
   const [text, setText] = useState("Loading...");
   const location = useLocation();
-  const params = useParams();
-  const navigate = useNavigate();  // Change here
+  const navigate = useNavigate();  
 
   useEffect(() => {
-    const providerName = "google"; // Set the provider name here (e.g., 'google')
+    const providerName = "google"; 
 
     fetch(`${backendUrl}/api/auth/${providerName}/callback${location.search}`)
       .then((res) => {

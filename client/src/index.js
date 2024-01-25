@@ -17,7 +17,7 @@ import { AuthProvider } from "./Auth/AuthContext";
 
 
 const AppRouter = () => {
-  const userRole = "student"; 
+
   return (
 <AuthProvider>
     <Router>
@@ -28,7 +28,7 @@ const AppRouter = () => {
         <Route
           path="/staff"
           element={
-            userRole === "S" ? <Navigate to="/forbidden" /> : <HomeS />
+            <HomeS />
           }
         />
         <Route path="/connect/google/redirect" element={<LoginRedirect />} />

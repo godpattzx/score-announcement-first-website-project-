@@ -6,7 +6,7 @@ import logo from "../image/PSU Logo-01.png";
 import { useAuth } from "../Auth/AuthContext";
 
 const NavigationBar = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout,role } = useAuth();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -34,7 +34,7 @@ const NavigationBar = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto">
             <Nav.Link href="/student">Home</Nav.Link>
-            {isAuthenticated && user?.role?.type === "staff" ? (
+            {isAuthenticated && role === "Staff" ? (
               <Nav.Link href="/staff">Staff Management</Nav.Link>
             ) : null}
           </Nav>
