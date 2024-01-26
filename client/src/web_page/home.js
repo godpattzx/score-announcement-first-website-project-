@@ -44,7 +44,7 @@ function MainComponent() {
         setDataFromApi1(api1Response.data.data);
 
         const api2Response = await axios.get(
-          `${conf.apiUrlPrefix}/subjects?populate=*&filters[views][student_id][$eq]=${user?.username}`,
+          `${conf.apiUrlPrefix}${conf.subjectsEndpoint}?populate=*&filters[views][student_id][$eq]=${user?.username}`,
           {
             headers: {
               Authorization: `Bearer ${storedJwt}`,
@@ -55,7 +55,7 @@ function MainComponent() {
         setDataFromApi2(api2Response.data.data);
 
         const userScoresResponse = await axios.get(
-          `${conf.apiUrlPrefix}/views?filters[student_id][$eq]=${user?.username}`,
+          `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}?filters[student_id][$eq]=${user?.username}`,
           {
             headers: {
               Authorization: `Bearer ${storedJwt}`,

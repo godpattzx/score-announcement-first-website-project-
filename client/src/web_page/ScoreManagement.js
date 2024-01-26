@@ -371,6 +371,7 @@ function ScoreManagement() {
 
   return (
     <div>
+      <ContextProvider >
       <NavigationBar />
       <Container>
         <h3 className="mb-4">{`Score Management - ${subjectName}`}</h3>
@@ -432,7 +433,9 @@ function ScoreManagement() {
         handleClose={() => setShowConfirmUploadModal(false)}
         handleConfirmUpload={handleConfirmUpload}
       />
+       </ContextProvider>
     </div>
+   
   );
 }
 

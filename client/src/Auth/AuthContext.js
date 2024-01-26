@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { useSetState } from 'react-use';
-import conf from '../conf/main';
-import ax, { axData } from '../conf/ax';
+import React, { useEffect } from "react";
+import { useSetState } from "react-use";
+import conf from "../conf/main";
+import ax, { axData } from "../conf/ax";
 
 export const AuthContext = React.createContext(null);
 
@@ -36,7 +36,11 @@ export const ContextProvider = (props) => {
         updateJwt(result.jwt);
       }
       setLoginSuccess(true, result.user);
-      console.log('User Information:', result.user.username, result.user.role.name);
+      console.log(
+        "User Information:",
+        result.user.username,
+        result.user.role.name
+      );
     } else if (error) {
       setLoginError(error);
     }
@@ -62,10 +66,10 @@ export const ContextProvider = (props) => {
         updateJwt(response.data.jwt);
         setLoginSuccess(true, response.data.user);
       } else {
-        throw new Error('Invalid username and password');
+        throw new Error("Invalid username and password");
       }
     } catch (error) {
-      setLoginError(new Error('Failed to initiate login'));
+      setLoginError(new Error("Failed to initiate login"));
     }
   };
 
@@ -105,9 +109,9 @@ const loadPersistedJwt = async (callback) => {
       callback(null);
     }
   } catch (error) {
-    console.error('Error during auto login:', error);
+    console.error("Error during auto login:", error);
     updateJwt(null);
-    callback(new Error('Failed to initiate auto login'));
+    callback(new Error("Failed to initiate auto login"));
   }
 };
 

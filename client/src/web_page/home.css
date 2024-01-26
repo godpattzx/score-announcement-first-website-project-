@@ -1,230 +1,148 @@
 body {
-    background-color: #DCF2F1;
-    color: #333;
-  }
-  
-  .container {
-    margin-top: 50px;
-  }
-  
-  
-  
-  .table thead th {
-    background-color: #343a40; /* Dark Gray */
-    color: #fff;
-  }
-  
- 
-  
-  .model_box {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .table-column-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .button-view-score {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .button-view-score:hover {
-    background-color: #0056b3;
-  }
-  
-  .text-center {
-    text-align: center;
-  }
-  
-  .container {
-    background-color: #DCF2F1; /* Light Goldenrod Yellow */
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 20px;
-  }
-  
-  .row {
-    margin-bottom: 20px;
-  }
-  
-  .table {
-    background-color: #fff8dc; /* Light Goldenrod Yellow */
-    border-radius: 10px;
-  }
-  
-  .table td,
-  .table th {
-    padding: 15px;
-  }
-  
-  .table-bordered {
-    border-color: #7FC7D9; /* Indian Red */
-  }
-  
-  .modal {
-    background-color: #e9e6fd; /* Light Goldenrod Yellow */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .modal-content {
-    border: 1px solid #cd8d7a; /* Indian Red */
-    border-radius: 10px;
-    background-color: #fdf5e6; /* Light Goldenrod Yellow */
-  }
-  
-  .modal-footer button {
-    background-color: #cd8d7a; /* Indian Red */
-    color: #fff;
-  }
-  
-  
-  
-  .button-view-score {
-    background-color: #cd8d7a; /* Indian Red */
-    color: #fff;
-  }
-  
- 
-  
-  .acknowledge-button {
-    background-color: #28a745; /* Green */
-    color: #fff;
-    margin-top: 5px;
-    float: right;
-    margin-bottom: 5px;
-  }
-  
-  .Toastify__toast-container {
-    width: 350px;
-  }
-  
-  model_box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  
-  .modal-dialog {
-    max-width: 600px;
-    background-color: #fdf5e6; /* Light Goldenrod Yellow */
-  }
-  
-  .status-container {
-    text-align: right;
-    flex: 1;
-  }
-  
-  .scores {
-    flex: 1;
-  }
-  
-  .score-value {
-    font-weight: bolder;
-  }
-  
-  .status {
-    font-weight: bold;
-  }
-  
-  .pass {
-    color: green;
-  }
-  
-  .fail {
-    color: red;
-  }
-  .top-right-search {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
-  .search-input {
-    position: relative;
-    margin-bottom: 20px;
-  }
-  
-  .search-input input {
-    width: 100%;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-  
-
-  .search-input input::placeholder {
-    color: #aaa;
-  }
-  
- 
-  .search-input::after {
-    content: '\1F50D'; 
-    font-size: 20px;
-    color: #aaa;
-    position: absolute;
-    top: 40%;
-    right: 30px;
-    transform: translateY(-50%);
-    cursor: pointer;
-  }
-
-  .search-input::after:hover {
-    color: #333;
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  
-  .pagination button {
-    background-color: #3498db;
-    color: #fff;
-    border: none; 
-    padding: 4px 10px; 
-    margin: 0 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    border-radius: 4px; 
-  }
-  
-  .pagination button:hover {
-    background-color: #2980b9;
-  }
-  
-  .pagination button.active {
-    background-color: #007bff;
-    color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f6f6f6;
+  color: #333;
 }
+
+.container {
+  margin-top: 50px;
+}
+
+.table {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table thead th {
+  background-color: #343a40;
+  color: #fff;
+  padding: 15px;
+  border: none;
+}
+
+.table td,
+.table th {
+  padding: 15px;
+  border: 1px solid #ddd;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  max-width: 600px;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal-footer button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-footer button:hover {
+  background-color: #0056b3;
+}
+
+.button,
+.button-view-score,
+.acknowledge-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover,
+.button-view-score:hover,
+.acknowledge-button:hover {
+  background-color: #0056b3;
+}
+
+.search-input {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-input input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.search-input::after {
+  content: '\1F50D';
+  font-size: 20px;
+  color: #aaa;
+  position: absolute;
+  top: 50%;
+  right: 35px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.search-input::after:hover {
+  color: #333;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  margin: 0 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:hover {
+  background-color: #0056b3;
+}
+
+.pagination button.active {
+  background-color: #0056b3;
+}
+
 .status-image {
   width: 50px;
   height: 50px;
-
 }
 
 .positive p {
-  color: green; 
+  color: green;
 }
 
 .negative p {
-  color: red; 
+  color: red;
 }
 
 .neutral p {
-  color: gray; 
+  color: gray;
 }
+
+
