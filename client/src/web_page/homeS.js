@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Button, Container, Row, Col, Card, Modal } from "react-bootstrap";
 import axios from "axios";
 import NavigationBar from "../components/navbar";
@@ -10,6 +10,11 @@ import { toast, ToastContainer } from "react-toastify";
 import { format } from "date-fns";
 import "react-toastify/dist/ReactToastify.css";
 import "./homeS.css";
+
+import conf from '../conf/main';
+
+import { AuthContext,ContextProvider } from '../Auth/AuthContext';
+
 
 function HomeS() {
   const [data, setData] = useState([]);
@@ -31,14 +36,17 @@ function HomeS() {
   const itemsPerPage = 4;
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
-  const authToken = localStorage.getItem("authToken");
+
+  const { state: contextState } = useContext(AuthContext);
+  const { user } = contextState;
+  const storedJwt = sessionStorage.getItem('auth.jwt')
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:1337/api/subjects", {
+        const response = await axios.get(`${conf.apiUrlPrefix}/subjects`, {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${storedJwt}`,
           },
         });
         setData(response.data.data);
@@ -48,13 +56,12 @@ function HomeS() {
     };
 
     fetchData();
-  }, [authToken]);
+  }, [storedJwt]);
 
   const renderItems = () => {
     const filteredItems = data.filter(
       (item) =>
-        item.attributes &&
-        item.attributes.name &&
+        item.attributes?.name &&
         item.attributes.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -82,7 +89,7 @@ function HomeS() {
             <Col key={item.id} md={6}>
               <Card style={{ marginBottom: "20px" }}>
                 <Card.Body>
-                  <Card.Title>{item.attributes?.name}</Card.Title>
+                  <Card.Title>{item?.attributes?.name}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
                     Lecturer: {item.attributes?.Lecturer}
                   </Card.Subtitle>
@@ -103,7 +110,7 @@ function HomeS() {
                     <Button
                       variant="primary"
                       onClick={() =>
-                        handleScoreManagement(item.attributes.name)
+                        handleScoreManagement(item?.attributes?.name)
                       }
                     >
                       Score Management
@@ -161,7 +168,7 @@ function HomeS() {
 
     try {
       const response = await axios.put(
-        `http://localhost:1337/api/subjects/${editedItem.id}`,
+        `${conf.apiUrlPrefix}${conf.subjectsEndpoint}/${editedItem.id}`,
         {
           data: {
             name: editedItem.attributes.name,
@@ -187,7 +194,7 @@ function HomeS() {
         },
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${storedJwt}`,
           },
         }
       );
@@ -195,10 +202,10 @@ function HomeS() {
       const fetchData = async () => {
         try {
           const response = await axios.get(
-            "http://localhost:1337/api/subjects",
+            `${conf.apiUrlPrefix}${conf.subjectsEndpoint}`,
             {
               headers: {
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${storedJwt}`,
               },
             }
           );
@@ -235,10 +242,10 @@ function HomeS() {
       }
 
       const response = await axios.delete(
-        `http://localhost:1337/api/subjects/${editedItem.id}`,
+        `${conf.apiUrlPrefix}${conf.subjectsEndpoint}/${editedItem.id}`,
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${storedJwt}`,
           },
         }
       );
@@ -246,10 +253,10 @@ function HomeS() {
       const fetchData = async () => {
         try {
           const response = await axios.get(
-            "http://localhost:1337/api/subjects",
+            `${conf.apiUrlPrefix}${conf.subjectsEndpoint}`,
             {
               headers: {
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${storedJwt}`,
               },
             }
           );
@@ -299,19 +306,8 @@ function HomeS() {
         return;
       }
 
-      const userResponse = await axios.get(
-        "http://localhost:1337/api/users/me",
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-
-      const currentUserID = userResponse.data.id;
-
       const response = await axios.post(
-        "http://localhost:1337/api/subjects",
+        `${conf.apiUrlPrefix}${conf.subjectsEndpoint}`,
         {
           data: {
             name: newSubjectData.name,
@@ -335,13 +331,13 @@ function HomeS() {
             ],
             publish_at: newSubjectData.publish_at || "2024-01-01",
             createBy: {
-              connect: [{ id: currentUserID }],
+              connect: [{ id: user.id }],
             },
           },
         },
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${storedJwt}`,
           },
         }
       );
@@ -349,10 +345,10 @@ function HomeS() {
       const fetchData = async () => {
         try {
           const response = await axios.get(
-            "http://localhost:1337/api/subjects",
+            `${conf.apiUrlPrefix}/subjects`,
             {
               headers: {
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${storedJwt}`,
               },
             }
           );
@@ -381,7 +377,7 @@ function HomeS() {
   };
 
   return (
-    <div>
+    <ContextProvider>
       <NavigationBar />
       <ToastContainer />
       <Container>
@@ -433,7 +429,7 @@ function HomeS() {
         newSubjectData={newSubjectData}
         setNewSubjectData={setNewSubjectData}
       />
-    </div>
+    </ContextProvider>
   );
 }
 

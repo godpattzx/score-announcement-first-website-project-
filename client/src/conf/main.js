@@ -4,9 +4,9 @@ const conf = {
     jwtUserRoleEndpoint: '/users/me?populate=role',
     jwtSessionStorageKey: 'auth.jwt',
     subjectsEndpoint: '/subjects', 
-    viewsEndpoint: '/views',
+    viewsEndpoint: '/views?populate=*',
     googleConnectEndpoint: '/connect/google',
-
+    viewsNotPopEndpoint: '/views',
   }
   
   export default conf;

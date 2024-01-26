@@ -25,19 +25,18 @@ export const ContextProvider = (props) => {
   const [state, setState] = useSetState(initialState);
 
   const setLoginPending = (isLoginPending) => setState({ isLoginPending });
-  const setLoginSuccess = (isLoggedIn, user) =>
-    setState({ isLoggedIn, user }); 
+  const setLoginSuccess = (isLoggedIn, user) => setState({ isLoggedIn, user });
   const setLoginError = (loginError) => setState({ loginError });
 
   const handleLoginResult = (error, result) => {
     setLoginPending(false);
 
-    if (result&& result.user) {
+    if (result && result.user) {
       if (result.jwt) {
         updateJwt(result.jwt);
       }
-      setLoginSuccess(true, result.user); 
-      console.log(result.user.username, result.user.role.name)
+      setLoginSuccess(true, result.user);
+      console.log('User Information:', result.user.username, result.user.role.name);
     } else if (error) {
       setLoginError(error);
     }
@@ -48,12 +47,26 @@ export const ContextProvider = (props) => {
     loadPersistedJwt(handleLoginResult);
   }, []);
 
-  const login = (username, password) => {
+  const login = async (username, password) => {
     setLoginPending(true);
     setLoginSuccess(false);
     setLoginError(null);
 
-    fetchLogin(username, password, handleLoginResult);
+    try {
+      const response = await ax.post(conf.loginEndpoint, {
+        identifier: username,
+        password: password,
+      });
+
+      if (response.data.jwt && response.data.user.id > 0) {
+        updateJwt(response.data.jwt);
+        setLoginSuccess(true, response.data.user);
+      } else {
+        throw new Error('Invalid username and password');
+      }
+    } catch (error) {
+      setLoginError(new Error('Failed to initiate login'));
+    }
   };
 
   const logout = () => {
@@ -76,22 +89,6 @@ export const ContextProvider = (props) => {
   );
 };
 
-const fetchLogin = async (username, password, callback) => {
-  try {
-    const response = await ax.post(conf.loginEndpoint, {
-      identifier: username,
-      password: password,
-    });
-    if (response.data.jwt && response.data.user.id > 0) {
-      callback(null, response.data.user); 
-      console.log(response.data.user);
-      callback(new Error('Invalid username and password'));
-    }
-  } catch (e) {
-    callback(new Error('Fail to initiate login'));
-  }
-};
-
 const loadPersistedJwt = async (callback) => {
   try {
     const persistedJwt = sessionStorage.getItem(conf.jwtSessionStorageKey);
@@ -101,11 +98,17 @@ const loadPersistedJwt = async (callback) => {
       if (response.data.id > 0) {
         callback(null, { user: response.data });
       } else {
+        updateJwt(null);
         callback(null);
       }
+    } else {
+      callback(null);
     }
-  } catch (e) {
-    console.log(e);
-    callback(new Error('Fail to initiate auto login'));
+  } catch (error) {
+    console.error('Error during auto login:', error);
+    updateJwt(null);
+    callback(new Error('Failed to initiate auto login'));
   }
 };
+
+export default ContextProvider;

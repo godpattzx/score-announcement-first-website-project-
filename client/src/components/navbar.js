@@ -42,7 +42,7 @@ const NavigationBar = () => {
             { user?.role ? (
               <>
                 <Navbar.Text className="mr-5 sign-in-as">
-                  Sign in as: {user.username} ({user.role.name})
+                  Sign in as: {user?.username} ({user?.role?.name})
                 </Navbar.Text>
                 <Button
                   variant="outline-danger"

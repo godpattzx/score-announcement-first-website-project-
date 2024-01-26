@@ -9,12 +9,11 @@ import "./home.css";
 import SubjectTable from "../components/Home/SubjectTable";
 import ScoreDetailsModal from "../components/Home/ScoreDetailsModal";
 
-import conf from '../conf/main';
+import conf from "../conf/main";
 
-import { AuthContext } from "../Auth/AuthContext";
+import { AuthContext ,ContextProvider} from "../Auth/AuthContext";
 
 function MainComponent() {
-  
   const [show, setShow] = useState(false);
   const [dataFromApi1, setDataFromApi1] = useState([]);
   const [dataFromApi2, setDataFromApi2] = useState([]);
@@ -28,9 +27,12 @@ function MainComponent() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  
-  const { user, role, logout } = useContext(AuthContext);  
 
+  const { state: ContextState } = useContext(AuthContext);
+  const { user } = ContextState;
+  const storedJwt = sessionStorage.getItem("auth.jwt");
+
+  const [refreshData, setRefreshData] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,14 +43,11 @@ function MainComponent() {
 
         setDataFromApi1(api1Response.data.data);
 
-        const username = localStorage.getItem("username");
-        const authToken = localStorage.getItem("authToken");
-
         const api2Response = await axios.get(
-          `http://localhost:1337/api/subjects?populate=*&filters[views][student_id][$eq]=${username}`,
+          `${conf.apiUrlPrefix}/subjects?populate=*&filters[views][student_id][$eq]=${user?.username}`,
           {
             headers: {
-              Authorization: `Bearer ${authToken}`,
+              Authorization: `Bearer ${storedJwt}`,
             },
           }
         );
@@ -56,10 +55,10 @@ function MainComponent() {
         setDataFromApi2(api2Response.data.data);
 
         const userScoresResponse = await axios.get(
-          `http://localhost:1337/api/views?filters[student_id][$eq]=${username}`,
+          `${conf.apiUrlPrefix}/views?filters[student_id][$eq]=${user?.username}`,
           {
             headers: {
-              Authorization: `Bearer ${authToken}`,
+              Authorization: `Bearer ${storedJwt}`,
             },
           }
         );
@@ -80,32 +79,29 @@ function MainComponent() {
     };
 
     fetchData();
-  }, []);
+  }, [user?.username, refreshData]);
 
   const handleAcknowledge = async () => {
     try {
-      const authToken = localStorage.getItem("authToken");
-      const username = localStorage.getItem("username");
-
       console.log("Received Item:", selectedItem);
       const itemAttributes = selectedItem.attributes;
       console.log("Item Attributes:", itemAttributes);
 
-      if (Array.isArray(itemAttributes?.views?.data) &&
+      if (
+        Array.isArray(itemAttributes?.views?.data) &&
         itemAttributes.views.data.length > 0
       ) {
-        
         const userView = itemAttributes.views.data.find(
-          (view) => view.attributes.student_id === username
+          (view) => view.attributes.student_id === user?.username
         );
 
         if (userView) {
           if (!userView.attributes.ack) {
             const acknowledgeResponse = await axios.get(
-              `http://localhost:1337/api/views/${userView.id}/ack`,
+              `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}/${userView.id}/ack`,
               {
                 headers: {
-                  Authorization: `Bearer ${authToken}`,
+                  Authorization: `Bearer ${storedJwt}`,
                 },
               }
             );
@@ -131,11 +127,12 @@ function MainComponent() {
           }
         );
       }
+      setRefreshData(true);
     } catch (error) {
       console.error("Acknowledge API Error:", error);
 
       const errorMessage =
-        error.response && error.response.data
+         error?.response.data
           ? error.response.data.message
           : "Unknown error";
 
@@ -161,32 +158,31 @@ function MainComponent() {
         setButtonDisabled(false);
 
         try {
-          const authToken = localStorage.getItem("authToken");
-
           const response = await axios.get(
-            `http://localhost:1337/api/subjects/${item.id}?populate=views`,
+            `${conf.apiUrlPrefix}/subjects/${item.id}?populate=views`,
             {
               headers: {
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${storedJwt}`,
               },
             }
           );
 
           const subjectWithViews = response.data.data;
-
+          console.log(subjectWithViews);
+          console.log(user?.username)
           // กรองข้อมูล views ที่เป็นของ student ที่ login
           const filteredViewsData =
             subjectWithViews.attributes.views.data.filter(
               (view) =>
-                view.attributes.student_id === localStorage.getItem("username")
+                view.attributes.student_id === user?.username
             );
 
           if (filteredViewsData.length > 0) {
             const seenResponse = await axios.get(
-              `http://localhost:1337/api/views/${filteredViewsData[0].id}/seen`,
+              `${conf.apiUrlPrefix}/views/${filteredViewsData[0].id}/seen`,
               {
                 headers: {
-                  Authorization: `Bearer ${authToken}`,
+                  Authorization: `Bearer ${storedJwt}`,
                 },
               }
             );
@@ -242,6 +238,7 @@ function MainComponent() {
   const paginatedData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
+    <ContextProvider>
     <div className="container">
       <Tabs defaultActiveKey="home" id="main-tabs" className="mb-3">
         <Tab eventKey="home" title="Home">
@@ -317,7 +314,7 @@ function MainComponent() {
         />
       </div>
     </div>
+    </ContextProvider>
   );
 }
-
 export { MainComponent };

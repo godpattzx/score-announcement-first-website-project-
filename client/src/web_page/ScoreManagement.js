@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Container, Button } from "react-bootstrap";
@@ -11,6 +11,10 @@ import DeleteConfirmationModal from "../components/ScoreManagement/DeleteConfirm
 import EditModal from "../components/ScoreManagement/EditModal";
 import CreateModal from "../components/ScoreManagement/CreateModal";
 import ConfirmUploadModal from "../components/ScoreManagement/ConfirmUploadModal";
+
+import { AuthContext,ContextProvider } from '../Auth/AuthContext';
+import conf from '../conf/main';
+
 
 function ScoreManagement() {
   const [showConfirmUploadModal, setShowConfirmUploadModal] = useState(false);
@@ -41,15 +45,19 @@ function ScoreManagement() {
     ack: false,
   });
 
+  const { state: ContextState } = useContext(AuthContext);
+  const { user } = ContextState;
+  const storedJwt = sessionStorage.getItem("auth.jwt");
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const authToken = localStorage.getItem("authToken");
+        
         const response = await axios.get(
-          `http://localhost:1337/api/users?populate=role&filters[role][name][$eq]=Student`,
+          `${conf.apiUrlPrefix}/users?populate=role&filters[role][name][$eq]=Student`,
           {
             headers: {
-              Authorization: `Bearer ${authToken}`,
+              Authorization: `Bearer ${storedJwt}`,
             },
           }
         );
@@ -64,17 +72,17 @@ function ScoreManagement() {
     };
 
     fetchUsers();
-  }, []);
+  }, [storedJwt]);
 
   useEffect(() => {
     const fetchScores = async () => {
       try {
-        const authToken = localStorage.getItem("authToken");
+     
         const response = await axios.get(
-          `http://localhost:1337/api/views?populate=*`,
+          `${conf.apiUrlPrefix}${conf.viewsEndpoint}`,
           {
             headers: {
-              Authorization: `Bearer ${authToken}`,
+              Authorization: `Bearer ${storedJwt}`,
             },
           }
         );
@@ -94,7 +102,7 @@ function ScoreManagement() {
     };
 
     fetchScores();
-  }, [subjectName]);
+  }, [subjectName,storedJwt]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -122,14 +130,14 @@ function ScoreManagement() {
         const json = xlsx.utils.sheet_to_json(worksheet);
 
         try {
-          const authToken = localStorage.getItem("authToken");
+       
 
           for (const item of json) {
             const userResponse = await axios.get(
-              `http://localhost:1337/api/users?filters[username][$eq]=${item["Student ID"]}`,
+              `${conf.apiUrlPrefix}/users?filters[username][$eq]=${item["Student ID"]}`,
               {
                 headers: {
-                  Authorization: `Bearer ${authToken}`,
+                  Authorization: `Bearer ${storedJwt}`,
                 },
               }
             );
@@ -143,7 +151,7 @@ function ScoreManagement() {
             }
 
             const response = await axios.post(
-              "http://localhost:1337/api/views",
+              `${conf.apiUrlPrefix}${conf.viewsEndpoint}`,
               {
                 data: {
                   student_id: String(item["Student ID"]),
@@ -166,7 +174,7 @@ function ScoreManagement() {
               },
               {
                 headers: {
-                  Authorization: `Bearer ${authToken}`,
+                  Authorization: `Bearer ${storedJwt}`,
                 },
               }
             );
@@ -174,10 +182,10 @@ function ScoreManagement() {
           }
 
           const scoresResponse = await axios.get(
-            `http://localhost:1337/api/views?populate=*`,
+            `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}`,
             {
               headers: {
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${storedJwt}`,
               },
             }
           );
@@ -224,10 +232,9 @@ function ScoreManagement() {
 
   const confirmDelete = async () => {
     try {
-      const authToken = localStorage.getItem("authToken");
-      await axios.delete(`http://localhost:1337/api/views/${deleteScoreId}`, {
+      await axios.delete(`${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}/${deleteScoreId}`, {
         headers: {
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${storedJwt}`,
         },
       });
 
@@ -248,15 +255,14 @@ function ScoreManagement() {
 
   const saveEditedScore = async () => {
     try {
-      const authToken = localStorage.getItem("authToken");
       await axios.put(
-        `http://localhost:1337/api/views/${editScoreId}`,
+        `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}/${editScoreId}`,
         {
           data: editedScore,
         },
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${storedJwt}`,
           },
         }
       );
@@ -286,7 +292,6 @@ function ScoreManagement() {
 
   const saveNewScore = async () => {
     try {
-      const authToken = localStorage.getItem("authToken");
       if (!subjectId || !newScore.student_id) {
         console.error("Subject ID or Student ID is not available");
         return;
@@ -296,7 +301,7 @@ function ScoreManagement() {
       const selectedUserId = newScore.student_id.split(",")[0];
 
       const PostCreate = await axios.post(
-        "http://localhost:1337/api/views",
+        `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}`,
         {
           data: {
             student_id: selectedUser,
@@ -319,7 +324,7 @@ function ScoreManagement() {
         },
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${storedJwt}`,
           },
         }
       );
@@ -329,7 +334,7 @@ function ScoreManagement() {
         `http://localhost:1337/api/views?populate=*`,
         {
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${storedJwt}`,
           },
         }
       );
