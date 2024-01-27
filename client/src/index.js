@@ -13,6 +13,7 @@ import "mdb-react-ui-kit/dist/css/mdb.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import ScoreManagement from "./web_page/ScoreManagement";
 import { ContextProvider } from "./Auth/AuthContext";
+import PrivateRoute from "./Auth/PrivateRoute";
 
 const AppRouter = () => {
   return (
@@ -20,9 +21,9 @@ const AppRouter = () => {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/student/*" element={<App />} /> {/* Updated path for student */}
+          <Route path="/student/*" element={<App />} /> 
           <Route path="/login" element={<LoginForm />} />
-          <Route path="/staff/*" element={<HomeS />} /> {/* Updated path for staff */}
+          <Route path="/staff" element={<PrivateRoute element={<HomeS />} roles={['Staff']} />} />
           <Route path="/connect/google/redirect" element={<LoginRedirect />} />
           <Route path="/score-management/:subjectName" element={<ScoreManagement />} />
         </Routes>

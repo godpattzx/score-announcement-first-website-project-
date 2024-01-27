@@ -1,5 +1,5 @@
 // SimpleLoginForm.js
-import React, { useState, useContext, useSetState } from "react";
+import React, { useState, useContext } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
 import { useNavigate} from "react-router-dom";
 import { toast } from "react-toastify";
@@ -9,14 +9,13 @@ import BackgroundImage from "../image/image-from-rawpixel-id-2909890-jpeg.jpg";
 import Logo from "../image/psu1.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 import conf from "../conf/main";
-import ax, { axData } from '../conf/ax';
+import ax from '../conf/ax';
 
 import { AuthContext, ContextProvider } from "../Auth/AuthContext";
 
 
 const LoginForm = () => {
-  const { state: ContextState, login } = useContext(AuthContext);
-  const { user } = ContextState;
+  const { login } = useContext(AuthContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitEnabled, setSubmitEnabled] = useState(true);

@@ -1,13 +1,19 @@
-Strapi Account:
-admin@webdev.com
-Wd123456
+-------------------------------------------
 
-login user-student-test
-3student
-123456
+Strapi Account : 
+ admin@webdev.com
+ Wd123456
 
-login user-staff-test
-staff_a
-123456
+-------------------------------------------
 
+login user-student
+username : 1student, 2student, 3student
+password : 123456
 
+-------------------------------------------
+
+login user-staff
+username : staff_a, staff_b
+password : 123456
+
+-------------------------------------------

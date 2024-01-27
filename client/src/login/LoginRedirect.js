@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom";  // Change here
+import { useLocation, useNavigate } from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
 
 
@@ -23,8 +23,8 @@ const LoginRedirect = () => {
       .then((res) => res.json())
       .then((res) => {
 
-        localStorage.setItem("authToken", res.jwt);
-        localStorage.setItem("username", res.user.username);
+        sessionStorage.setItem("auth.jwt", res.jwt);
+    
         setText(
           "You have been successfully logged in. You will be redirected in a few seconds..."
         );
