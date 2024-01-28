@@ -390,7 +390,6 @@ export interface ApiSubjectSubject extends Schema.CollectionType {
     >;
     full_score: Attribute.Integer & Attribute.DefaultTo<0>;
     publish_at: Attribute.DateTime;
-    type_score: Attribute.String;
     score_criteria: Attribute.Integer;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -437,6 +436,7 @@ export interface ApiViewView extends Schema.CollectionType {
     >;
     student_id: Attribute.String;
     ack_datetime: Attribute.DateTime;
+    typeScore: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

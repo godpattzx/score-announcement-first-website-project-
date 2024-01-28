@@ -39,6 +39,9 @@
     },
     "ack_datetime": {
       "type": "datetime"
+    },
+    "typeScore": {
+      "type": "string"
     }
   }
 }

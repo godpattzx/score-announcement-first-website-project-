@@ -73,20 +73,6 @@ const CreateModal = ({
             />
           </Form.Group>
 
-          <Form.Group controlId="formTypeScore">
-            <Form.Label>Type Score *</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter Type Score"
-              value={newSubjectData.type_score}
-              onChange={(e) =>
-                setNewSubjectData({
-                  ...newSubjectData,
-                  type_score: e.target.value,
-                })
-              }
-            />
-          </Form.Group>
 
           <Form.Group controlId="formFullScore">
             <Form.Label>Full Score *</Form.Label>

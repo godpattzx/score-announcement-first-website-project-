@@ -28,6 +28,9 @@ function MainComponent() {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
+  const [selectedScoreType, setSelectedScoreType] = useState("");
+
+
   const { state: ContextState } = useContext(AuthContext);
   const { user } = ContextState;
   const storedJwt = sessionStorage.getItem("auth.jwt");
@@ -81,61 +84,51 @@ function MainComponent() {
     fetchData();
   }, [user?.username, refreshData]);
 
-  const handleAcknowledge = async () => {
+  const handleAcknowledge = async (selectedScoreType) => {
     try {
       console.log("Received Item:", selectedItem);
       const itemAttributes = selectedItem.attributes;
       console.log("Item Attributes:", itemAttributes);
-
+  
       if (
         Array.isArray(itemAttributes?.views?.data) &&
         itemAttributes.views.data.length > 0
       ) {
         const userView = itemAttributes.views.data.find(
-          (view) => view.attributes.student_id === user?.username
+          (view) =>
+            view.attributes.student_id === user?.username &&
+            view.attributes.typeScore === selectedScoreType
         );
-
-        if (userView) {
-          if (!userView.attributes.ack) {
-            const acknowledgeResponse = await axios.get(
-              `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}/${userView.id}/ack`,
-              {
-                headers: {
-                  Authorization: `Bearer ${storedJwt}`,
-                },
-              }
-            );
-
-            console.log("Acknowledge API Response:", acknowledgeResponse.data);
-            toast.success("You have acknowledged your score successfully!");
-            setAcknowledged(true);
-          } else {
-            toast.warning("Score is already acknowledged.", {
-              position: toast.POSITION.TOP_CENTER,
-            });
-          }
+  
+        if (userView && !userView.attributes.ack) {
+          const acknowledgeResponse = await axios.get(
+            `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}/${userView.id}/ack`,
+            {
+              headers: {
+                Authorization: `Bearer ${storedJwt}`,
+              },
+            }
+          );
+  
+          console.log("Acknowledge API Response:", acknowledgeResponse.data);
+          toast.success("You have acknowledged your score successfully!");
+          setAcknowledged(true);
         } else {
-          toast.warning("Score details not found for the logged-in user.", {
-            position: toast.POSITION.TOP_CENTER,
-          });
+          toast.warning(
+            "Score not found or already acknowledged for the selected type.",
+            {
+              position: toast.POSITION.TOP_CENTER,
+            }
+          );
         }
-      } else {
-        toast.warning(
-          "Score details are not available or are in an unexpected format.",
-          {
-            position: toast.POSITION.TOP_CENTER,
-          }
-        );
       }
       setRefreshData(true);
     } catch (error) {
       console.error("Acknowledge API Error:", error);
-
+  
       const errorMessage =
-         error?.response.data
-          ? error.response.data.message
-          : "Unknown error";
-
+        error?.response.data ? error.response.data.message : "Unknown error";
+  
       toast.error(`Error acknowledging your score: ${errorMessage}`, {
         position: toast.POSITION.TOP_CENTER,
       });
@@ -143,10 +136,12 @@ function MainComponent() {
       handleClose();
     }
   };
+  
 
   const handleShow = async (item) => {
     setAcknowledged(false);
     setSelectedItem(item);
+    setSelectedScoreType("");
     console.log("Selected Item:", selectedItem);
 
     if (item.attributes.publishedAt) {
@@ -170,7 +165,7 @@ function MainComponent() {
           const subjectWithViews = response.data.data;
           console.log(subjectWithViews);
           console.log(user?.username)
-          // กรองข้อมูล views ที่เป็นของ student ที่ login
+
           const filteredViewsData =
             subjectWithViews.attributes.views.data.filter(
               (view) =>
@@ -195,15 +190,7 @@ function MainComponent() {
             position: toast.POSITION.TOP_CENTER,
           });
         }
-      } else {
-        toast.warning(
-          "Score details will be available after the publish time.",
-          {
-            position: toast.POSITION.TOP_CENTER,
-          }
-        );
-        setButtonDisabled(true);
-      }
+      } 
     } else {
       toast.warning("Score details are not available yet.", {
         position: toast.POSITION.TOP_CENTER,
@@ -236,6 +223,10 @@ function MainComponent() {
     : dataFromApi1;
 
   const paginatedData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleScoreTypeChange = (e) => {
+    setSelectedScoreType(e.target.value);
+  };
 
   return (
     <ContextProvider>
@@ -304,14 +295,16 @@ function MainComponent() {
         </Tab>
       </Tabs>
       <div className="model_box">
-        <ScoreDetailsModal
-          show={show}
-          handleClose={handleClose}
-          selectedItem={selectedItem}
-          handleAcknowledge={handleAcknowledge}
-          acknowledged={acknowledged}
-          isButtonDisabled={isButtonDisabled}
-        />
+      <ScoreDetailsModal
+            show={show}
+            handleClose={handleClose}
+            selectedItem={selectedItem}
+            handleAcknowledge={handleAcknowledge}
+            acknowledged={acknowledged}
+            isButtonDisabled={isButtonDisabled}
+            selectedScoreType={selectedScoreType}
+            handleScoreTypeChange={handleScoreTypeChange}
+          />
       </div>
     </div>
     </ContextProvider>

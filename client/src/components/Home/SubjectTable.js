@@ -10,7 +10,6 @@ const SubjectTable = ({ data, isViewTab, handleShow, }) => (
           <th>Course Code</th>
           <th>Subject</th>
           <th>Description</th>
-          <th>Type Score</th>
           <th>Lecturer</th>
           {isViewTab ? (
             <th className="text-center">Action</th>
@@ -29,7 +28,7 @@ const SubjectTable = ({ data, isViewTab, handleShow, }) => (
                 ? item.attributes.description[0].children[0].text
                 : ""}
             </td>
-            <td>{item.attributes.type_score}</td>
+
             <td>{item.attributes.Lecturer}</td>
             <td>
               {isViewTab ? (

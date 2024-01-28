@@ -27,7 +27,6 @@ function HomeS() {
     name: "",
     lecturer: "",
     courseCode: "",
-    type_score: "",
     full_score: "",
     score_criteria: "",
     description: "",
@@ -98,9 +97,6 @@ function HomeS() {
                   </Card.Text>
                   <Card.Text>
                     <strong>Course Code:</strong> {item.attributes?.CourseCode}
-                  </Card.Text>
-                  <Card.Text>
-                    <strong>Type Score:</strong> {item.attributes?.type_score}
                   </Card.Text>
                   <Card.Text>
                     <strong>Publish Date:</strong>{" "}
@@ -174,7 +170,6 @@ function HomeS() {
             name: editedItem.attributes.name,
             Lecturer: editedItem.attributes.Lecturer,
             CourseCode: editedItem.attributes.CourseCode,
-            type_score: editedItem.attributes.type_score,
             full_score: editedItem.attributes.full_score,
             score_criteria: editedItem.attributes.score_criteria,
             description: [
@@ -284,7 +279,6 @@ function HomeS() {
       name: "",
       lecturer: "",
       courseCode: "",
-      type_score: "",
       full_score: "",
       score_criteria: "",
       description: "",
@@ -298,7 +292,6 @@ function HomeS() {
         !newSubjectData.name ||
         !newSubjectData.lecturer ||
         !newSubjectData.courseCode ||
-        !newSubjectData.type_score ||
         !newSubjectData.full_score ||
         !newSubjectData.publish_at
       ) {
@@ -313,7 +306,6 @@ function HomeS() {
             name: newSubjectData.name,
             Lecturer: newSubjectData.lecturer,
             CourseCode: newSubjectData.courseCode,
-            type_score: newSubjectData.type_score,
             full_score: newSubjectData.full_score || 100,
             score_criteria: newSubjectData.score_criteria,
             description: [
@@ -365,7 +357,6 @@ function HomeS() {
         name: "",
         lecturer: "",
         courseCode: "",
-        type_score: "",
         full_score: "",
         score_criteria: "",
         description: "",

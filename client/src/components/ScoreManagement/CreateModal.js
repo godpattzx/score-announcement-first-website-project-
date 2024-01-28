@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 
-const CreateModal = ({ show, handleClose, handleCreateInputChange, saveNewScore, userList, newScore }) => {
+const CreateModal = ({ show, handleClose, handleCreateInputChange, saveNewScore, userList, newScore, scoreTypes }) => {
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
@@ -34,6 +34,22 @@ const CreateModal = ({ show, handleClose, handleCreateInputChange, saveNewScore,
               value={newScore.score}
               onChange={handleCreateInputChange}
             />
+          </Form.Group>
+          <Form.Group controlId="formTypeScore" style={{ marginTop: "10px" }}>
+            <Form.Label>Select Type Score</Form.Label>
+            <Form.Control
+              as="select"
+              name="typeScore"
+              value={newScore.typeScore}
+              onChange={handleCreateInputChange}
+            >
+              <option value="">Select Type Score</option>
+              {scoreTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </Form.Control>
           </Form.Group>
         </Form>
       </Modal.Body>

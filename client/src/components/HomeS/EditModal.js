@@ -63,23 +63,6 @@ const EditModal = ({ show, handleClose, handleSaveChanges, editedItem, setEdited
               />
             </Form.Group>
 
-            <Form.Group controlId="formTypescore">
-              <Form.Label>Type Score *</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter Type Score"
-                value={editedItem?.attributes?.type_score || ""}
-                onChange={(e) =>
-                  setEditedItem((prevItem) => ({
-                    ...prevItem,
-                    attributes: {
-                      ...prevItem.attributes,
-                      type_score: e.target.value,
-                    },
-                  }))
-                }
-              />
-            </Form.Group>
 
             <Form.Group controlId="formDescription">
               <Form.Label>Description *</Form.Label>

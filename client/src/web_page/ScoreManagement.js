@@ -12,9 +12,8 @@ import EditModal from "../components/ScoreManagement/EditModal";
 import CreateModal from "../components/ScoreManagement/CreateModal";
 import ConfirmUploadModal from "../components/ScoreManagement/ConfirmUploadModal";
 
-import { AuthContext,ContextProvider } from '../Auth/AuthContext';
-import conf from '../conf/main';
-
+import { AuthContext, ContextProvider } from "../Auth/AuthContext";
+import conf from "../conf/main";
 
 function ScoreManagement() {
   const [showConfirmUploadModal, setShowConfirmUploadModal] = useState(false);
@@ -43,7 +42,11 @@ function ScoreManagement() {
     seen_datetime: "",
     ack_datetime: "",
     ack: false,
+    typeScore: "",
   });
+
+  const [scoreTypes, setScoreTypes] = useState([]);
+  const [selectedType, setSelectedType] = useState("");
 
   const { state: ContextState } = useContext(AuthContext);
   const { user } = ContextState;
@@ -52,7 +55,6 @@ function ScoreManagement() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        
         const response = await axios.get(
           `${conf.apiUrlPrefix}/users?populate=role&filters[role][name][$eq]=Student`,
           {
@@ -77,7 +79,6 @@ function ScoreManagement() {
   useEffect(() => {
     const fetchScores = async () => {
       try {
-     
         const response = await axios.get(
           `${conf.apiUrlPrefix}${conf.viewsEndpoint}`,
           {
@@ -86,23 +87,51 @@ function ScoreManagement() {
             },
           }
         );
+
         const filteredScores = response.data.data.filter(
           (score) =>
-            score.attributes?.subject?.data?.attributes?.name === subjectName
+            score.attributes?.subject?.data?.attributes?.name === subjectName &&
+            (selectedType === null ||
+              score.attributes?.typeScore === selectedType)
         );
+        console.log("Filtered Scores:", filteredScores);
+
         setStudentScores(filteredScores);
-        setSubjectId(
-          filteredScores.length > 0
-            ? filteredScores[0].attributes.subject.data.id
-            : null
-        );
+
+        if (filteredScores.length > 0) {
+          setSubjectId(filteredScores[0].attributes.subject.data.id);
+        }
+
+        console.log("Subject ID after setting:", subjectId);
       } catch (error) {
         console.error("API Error:", error);
       }
     };
 
     fetchScores();
-  }, [subjectName,storedJwt]);
+  }, [subjectName, storedJwt, selectedType, subjectId]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:1337/api/views?populate=*&filters[subject][name][$eq]=${subjectName}`,
+          { headers: { Authorization: `Bearer ${storedJwt}` } }
+        );
+
+        const typeScores = response.data.data.map(
+          (score) => score.attributes.typeScore
+        );
+        const uniqueTypeScores = [...new Set(typeScores)];
+        setScoreTypes(uniqueTypeScores);
+        console.log(uniqueTypeScores);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [user, subjectName, storedJwt]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -130,8 +159,6 @@ function ScoreManagement() {
         const json = xlsx.utils.sheet_to_json(worksheet);
 
         try {
-       
-
           for (const item of json) {
             const userResponse = await axios.get(
               `${conf.apiUrlPrefix}/users?filters[username][$eq]=${item["Student ID"]}`,
@@ -156,6 +183,7 @@ function ScoreManagement() {
                 data: {
                   student_id: String(item["Student ID"]),
                   score: item["Score"],
+                  typeScore: item["Type Score"],
                   subject: {
                     connect: [
                       {
@@ -232,11 +260,14 @@ function ScoreManagement() {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}/${deleteScoreId}`, {
-        headers: {
-          Authorization: `Bearer ${storedJwt}`,
-        },
-      });
+      await axios.delete(
+        `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}/${deleteScoreId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${storedJwt}`,
+          },
+        }
+      );
 
       setStudentScores((prevScores) =>
         prevScores.filter((score) => score.id !== deleteScoreId)
@@ -292,46 +323,60 @@ function ScoreManagement() {
 
   const saveNewScore = async () => {
     try {
-      if (!subjectId || !newScore.student_id) {
-        console.error("Subject ID or Student ID is not available");
+      if (!subjectId) {
+        console.error("Subject ID is not available");
+        return;
+      }
+
+      if (!newScore.student_id) {
+        console.error("Student ID is not available");
+        return;
+      }
+
+      if (!newScore.typeScore) {
+        console.error("Type Score is not available");
         return;
       }
 
       const selectedUser = newScore.student_id.split(",")[1];
       const selectedUserId = newScore.student_id.split(",")[0];
 
-      const PostCreate = await axios.post(
-        `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}`,
-        {
-          data: {
-            student_id: selectedUser,
-            score: newScore.score,
-            subject: {
-              connect: [
-                {
-                  id: subjectId,
-                },
-              ],
-            },
-            students: {
-              connect: [
-                {
-                  id: selectedUserId,
-                },
-              ],
-            },
+      const postCreateData = {
+        data: {
+          student_id: selectedUser,
+          score: newScore.score,
+          typeScore: newScore.typeScore,
+          subject: {
+            connect: [
+              {
+                id: subjectId,
+              },
+            ],
+          },
+          students: {
+            connect: [
+              {
+                id: selectedUserId,
+              },
+            ],
           },
         },
+      };
+
+      const PostCreate = await axios.post(
+        `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}`,
+        postCreateData,
         {
           headers: {
             Authorization: `Bearer ${storedJwt}`,
           },
         }
       );
+
       console.log("Created Score Data:", PostCreate.data);
 
       const response = await axios.get(
-        `http://localhost:1337/api/views?populate=*`,
+        `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}`,
         {
           headers: {
             Authorization: `Bearer ${storedJwt}`,
@@ -341,7 +386,8 @@ function ScoreManagement() {
 
       const filteredScores = response.data.data.filter(
         (score) =>
-          score?.attributes?.subject?.data?.attributes?.name === subjectName
+          score.attributes?.subject?.data?.attributes?.name === subjectName &&
+          score.attributes?.typeScore === selectedType
       );
 
       setStudentScores(filteredScores);
@@ -355,6 +401,7 @@ function ScoreManagement() {
         seen_datetime: "",
         ack_datetime: "",
         ack: false,
+        typeScore: "",
       });
     }
   };
@@ -371,71 +418,89 @@ function ScoreManagement() {
 
   return (
     <div>
-      <ContextProvider >
-      <NavigationBar />
-      <Container>
-        <h3 className="mb-4">{`Score Management - ${subjectName}`}</h3>
-        <Button
-          variant="success"
-          size="sm"
-          className="mb-3"
-          onClick={handleCreateNewScore}
-        >
-          Create New Score
-        </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          className="mb-3"
-          style={{ marginLeft: "10px" }}
-          onClick={handleDownload}
-        >
-          Download Form Excel
-        </Button>
-        <UploadFile
-          handleFileChange={handleFileChange}
-          handleUpload={handleUpload}
+      <ContextProvider>
+        <NavigationBar />
+        <Container>
+          <h3 className="mb-4">{`Score Management - ${subjectName}`}</h3>
+          <Button
+            variant="success"
+            size="sm"
+            className="mb-3"
+            onClick={handleCreateNewScore}
+          >
+            Create New Score
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            className="mb-3"
+            style={{ marginLeft: "10px" }}
+            onClick={handleDownload}
+          >
+            Download Form Excel
+          </Button>
+          <UploadFile
+            handleFileChange={handleFileChange}
+            handleUpload={handleUpload}
+          />
+
+          <div className="mb-3">
+            <label className="form-label">Select Type Score: </label>
+            <select
+              className={`form-select ${
+                selectedType === "" ? "is-invalid" : ""
+              }`}
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+            >
+              <option value="">Please Select Type Score</option>
+              {scoreTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+            {selectedType === "" && <div className="invalid-feedback"></div>}
+          </div>
+
+          <ScoreTable
+            studentScores={studentScores}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+            formatDatetime={formatDatetime}
+          />
+        </Container>
+
+        <DeleteConfirmationModal
+          show={showDeleteModal}
+          handleClose={() => setShowDeleteModal(false)}
+          confirmDelete={confirmDelete}
         />
 
-        <ScoreTable
-          studentScores={studentScores}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
-          formatDatetime={formatDatetime}
+        <EditModal
+          show={showEditModal}
+          handleClose={() => setShowEditModal(false)}
+          handleEditInputChange={handleEditInputChange}
+          saveEditedScore={saveEditedScore}
+          editedScore={editedScore}
         />
-      </Container>
 
-      <DeleteConfirmationModal
-        show={showDeleteModal}
-        handleClose={() => setShowDeleteModal(false)}
-        confirmDelete={confirmDelete}
-      />
-
-      <EditModal
-        show={showEditModal}
-        handleClose={() => setShowEditModal(false)}
-        handleEditInputChange={handleEditInputChange}
-        saveEditedScore={saveEditedScore}
-        editedScore={editedScore}
-      />
-
-      <CreateModal
-        show={showCreateModal}
-        handleClose={() => setShowCreateModal(false)}
-        handleCreateInputChange={handleCreateInputChange}
-        saveNewScore={saveNewScore}
-        newScore={newScore}
-        userList={userList}
-      />
-
-      <ConfirmUploadModal
-        show={showConfirmUploadModal}
-        handleClose={() => setShowConfirmUploadModal(false)}
-        handleConfirmUpload={handleConfirmUpload}
-      />
-       </ContextProvider>
+        <CreateModal
+          show={showCreateModal}
+          handleClose={() => setShowCreateModal(false)}
+          handleCreateInputChange={handleCreateInputChange}
+          saveNewScore={saveNewScore}
+          newScore={newScore}
+          userList={userList}
+          scoreTypes={scoreTypes}
+        />
+        <ConfirmUploadModal
+          show={showConfirmUploadModal}
+          handleClose={() => setShowConfirmUploadModal(false)}
+          handleConfirmUpload={handleConfirmUpload}
+        />
+      </ContextProvider>
     </div>
-   
   );
 }
 
