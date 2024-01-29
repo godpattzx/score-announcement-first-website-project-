@@ -43,9 +43,9 @@ function MainComponent() {
         const api1Response = await axios.get(
           `${conf.apiUrlPrefix}${conf.subjectsEndpoint}`
         );
-
+  
         setDataFromApi1(api1Response.data.data);
-
+  
         const api2Response = await axios.get(
           `${conf.apiUrlPrefix}${conf.subjectsEndpoint}?populate=*&filters[views][student_id][$eq]=${user?.username}`,
           {
@@ -54,9 +54,9 @@ function MainComponent() {
             },
           }
         );
-
+  
         setDataFromApi2(api2Response.data.data);
-
+  
         const userScoresResponse = await axios.get(
           `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}?filters[student_id][$eq]=${user?.username}`,
           {
@@ -68,7 +68,7 @@ function MainComponent() {
         setUserScores(userScoresResponse.data.data);
       } catch (error) {
         console.error("API Error:", error);
-
+  
         if (error.response && error.response.status === 401) {
           toast.warning("Please log in to view your scores.", {
             position: toast.POSITION.TOP_CENTER,
@@ -80,63 +80,46 @@ function MainComponent() {
         }
       }
     };
-
+  
     fetchData();
   }, [user?.username, refreshData]);
-
+  
   const handleAcknowledge = async (selectedScoreType) => {
     try {
-      console.log("Received Item:", selectedItem);
-      const itemAttributes = selectedItem.attributes;
-      console.log("Item Attributes:", itemAttributes);
+      const userView = selectedItem.attributes.views?.data.find(
+        (view) =>
+          view.attributes.student_id === user?.username &&
+          view.attributes.typeScore === selectedScoreType
+      );
   
-      if (
-        Array.isArray(itemAttributes?.views?.data) &&
-        itemAttributes.views.data.length > 0
-      ) {
-        const userView = itemAttributes.views.data.find(
-          (view) =>
-            view.attributes.student_id === user?.username &&
-            view.attributes.typeScore === selectedScoreType
+      if (userView && !userView.attributes.ack) {
+        const acknowledgeResponse = await axios.get(
+          `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}/${userView.id}/ack`,
+          {
+            headers: {
+              Authorization: `Bearer ${storedJwt}`,
+            },
+          }
         );
   
-        if (userView && !userView.attributes.ack) {
-          const acknowledgeResponse = await axios.get(
-            `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}/${userView.id}/ack`,
-            {
-              headers: {
-                Authorization: `Bearer ${storedJwt}`,
-              },
-            }
-          );
-  
-          console.log("Acknowledge API Response:", acknowledgeResponse.data);
-          toast.success("You have acknowledged your score successfully!");
-          setAcknowledged(true);
-        } else {
-          toast.warning(
-            "Score not found or already acknowledged for the selected type.",
-            {
-              position: toast.POSITION.TOP_CENTER,
-            }
-          );
-        }
+        setAcknowledged(true);
+        toast.success("You have acknowledged your score successfully!");
+        setRefreshData(true);
+      } else {
+        toast.warning(
+          "Score not found or already acknowledged for the selected type.",
+          {
+            position: toast.POSITION.TOP_CENTER,
+          }
+        );
       }
-      setRefreshData(true);
     } catch (error) {
       console.error("Acknowledge API Error:", error);
-  
-      const errorMessage =
-        error?.response.data ? error.response.data.message : "Unknown error";
-  
-      toast.error(`Error acknowledging your score: ${errorMessage}`, {
-        position: toast.POSITION.TOP_CENTER,
-      });
     } finally {
       handleClose();
     }
-  };
-  
+  };  
+
 
   const handleShow = async (item) => {
     setAcknowledged(false);
@@ -284,7 +267,7 @@ function MainComponent() {
               />
             </div>
             {dataFromApi2.length > 0 ? (
-              <>{renderTable(dataFromApi2, true)},</>
+              <>{renderTable(dataFromApi2, true)}</>
             ) : (
               <p className="no-scores-message">
                 There are no scores for you. Please contact the course

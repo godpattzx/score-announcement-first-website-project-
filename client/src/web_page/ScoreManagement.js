@@ -77,7 +77,7 @@ function ScoreManagement() {
   }, [storedJwt]);
 
   useEffect(() => {
-    const fetchScores = async () => {
+    const fetchData = async () => {
       try {
         const response = await axios.get(
           `${conf.apiUrlPrefix}${conf.viewsEndpoint}`,
@@ -87,38 +87,45 @@ function ScoreManagement() {
             },
           }
         );
-
-        const filteredScores = response.data.data.filter(
+  
+        const data = response.data.data;
+        const filteredScores = data.filter(
           (score) =>
             score.attributes?.subject?.data?.attributes?.name === subjectName &&
-            (selectedType === null ||
-              score.attributes?.typeScore === selectedType)
+            (selectedType === "" || score.attributes?.typeScore === selectedType)
         );
+  
         console.log("Filtered Scores:", filteredScores);
-
+  
         setStudentScores(filteredScores);
-
+  
         if (filteredScores.length > 0) {
-          setSubjectId(filteredScores[0].attributes.subject.data.id);
+          setSubjectId(filteredScores[0]?.attributes?.subject?.data?.id);
         }
-
+  
         console.log("Subject ID after setting:", subjectId);
       } catch (error) {
         console.error("API Error:", error);
       }
     };
-
-    fetchScores();
+  
+    fetchData();
   }, [subjectName, storedJwt, selectedType, subjectId]);
+  
+  
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:1337/api/views?populate=*&filters[subject][name][$eq]=${subjectName}`,
-          { headers: { Authorization: `Bearer ${storedJwt}` } }
+          `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}`,
+          {
+            headers: {
+              Authorization: `Bearer ${storedJwt}`,
+            },
+          }
         );
-
+  
         const typeScores = response.data.data.map(
           (score) => score.attributes.typeScore
         );
@@ -129,9 +136,10 @@ function ScoreManagement() {
         console.error("Error fetching data:", error);
       }
     };
-
+  
     fetchData();
   }, [user, subjectName, storedJwt]);
+
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -320,27 +328,13 @@ function ScoreManagement() {
     const { name, value } = e.target;
     setNewScore((prevScore) => ({ ...prevScore, [name]: value }));
   };
-
   const saveNewScore = async () => {
     try {
-      if (!subjectId) {
-        console.error("Subject ID is not available");
-        return;
-      }
-
-      if (!newScore.student_id) {
-        console.error("Student ID is not available");
-        return;
-      }
-
-      if (!newScore.typeScore) {
-        console.error("Type Score is not available");
-        return;
-      }
-
       const selectedUser = newScore.student_id.split(",")[1];
       const selectedUserId = newScore.student_id.split(",")[0];
-
+      console.log(newScore.student_id);
+      console.log(selectedUserId);
+  
       const postCreateData = {
         data: {
           student_id: selectedUser,
@@ -362,7 +356,7 @@ function ScoreManagement() {
           },
         },
       };
-
+  
       const PostCreate = await axios.post(
         `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}`,
         postCreateData,
@@ -372,11 +366,11 @@ function ScoreManagement() {
           },
         }
       );
-
+  
       console.log("Created Score Data:", PostCreate.data);
-
+  
       const response = await axios.get(
-        `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}`,
+        `${conf.apiUrlPrefix}${conf.viewsEndpoint}`,
         {
           headers: {
             Authorization: `Bearer ${storedJwt}`,
@@ -384,17 +378,17 @@ function ScoreManagement() {
         }
       );
 
-      const filteredScores = response.data.data.filter(
+      const data = response.data.data;
+      const filteredScores = data.filter(
         (score) =>
           score.attributes?.subject?.data?.attributes?.name === subjectName &&
-          score.attributes?.typeScore === selectedType
+          (selectedType === "" || score.attributes?.typeScore === selectedType)
       );
 
+      console.log("Filtered Scores:", filteredScores);
+
       setStudentScores(filteredScores);
-    } catch (error) {
-      console.error("Create Error:", error);
-    } finally {
-      setShowCreateModal(false);
+
       setNewScore({
         student_id: "",
         score: 0,
@@ -403,8 +397,13 @@ function ScoreManagement() {
         ack: false,
         typeScore: "",
       });
+  
+      setShowCreateModal(false);
+    } catch (error) {
+      console.error("Create Error:", error);
     }
   };
+  
 
   const handleDownload = () => {
     const fileUrl = "./components/excelTest.xlsx";
