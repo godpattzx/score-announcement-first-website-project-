@@ -2,6 +2,21 @@ import React from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 
 const CreateModal = ({ show, handleClose, handleCreateInputChange, saveNewScore, userList, newScore, scoreTypes }) => {
+  const handleTypeScoreChange = (e) => {
+    const selectedTypeScore = e.target.value;
+    handleCreateInputChange(e);
+
+    // Reset otherTypeScore when a different type is selected
+    if (selectedTypeScore !== "Other") {
+      handleCreateInputChange({
+        target: {
+          name: "otherTypeScore",
+          value: "",
+        },
+      });
+    }
+  };
+
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
@@ -41,7 +56,7 @@ const CreateModal = ({ show, handleClose, handleCreateInputChange, saveNewScore,
               as="select"
               name="typeScore"
               value={newScore.typeScore}
-              onChange={handleCreateInputChange}
+              onChange={handleTypeScoreChange}
             >
               <option value="">Select Type Score</option>
               {scoreTypes.map((type) => (
@@ -49,8 +64,22 @@ const CreateModal = ({ show, handleClose, handleCreateInputChange, saveNewScore,
                   {type}
                 </option>
               ))}
+              <option value="Other">Other</option>
             </Form.Control>
           </Form.Group>
+          {newScore.typeScore === "Other" && (
+           <Form.Group controlId="formOtherTypeScore" style={{ marginTop: "10px" }}>
+           <Form.Label>Other Type Score</Form.Label>
+           <Form.Control
+             type="text"
+             placeholder="Enter Other Type Score"
+             name="otherTypeScore"
+             value={newScore.otherTypeScore}
+             onChange={handleCreateInputChange}  
+           />
+         </Form.Group>
+         
+          )}
         </Form>
       </Modal.Body>
       <Modal.Footer>

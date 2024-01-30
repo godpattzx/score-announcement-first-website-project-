@@ -43,6 +43,7 @@ function ScoreManagement() {
     ack_datetime: "",
     ack: false,
     typeScore: "",
+    otherTypeScore: "",
   });
 
   const [scoreTypes, setScoreTypes] = useState([]);
@@ -51,6 +52,8 @@ function ScoreManagement() {
   const { state: ContextState } = useContext(AuthContext);
   const { user } = ContextState;
   const storedJwt = sessionStorage.getItem("auth.jwt");
+
+  
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -76,6 +79,12 @@ function ScoreManagement() {
     fetchUsers();
   }, [storedJwt]);
 
+
+  useEffect(() => {
+    setSelectedType("");
+  }, [scoreTypes]);
+  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -87,32 +96,31 @@ function ScoreManagement() {
             },
           }
         );
-  
+
         const data = response.data.data;
         const filteredScores = data.filter(
           (score) =>
             score.attributes?.subject?.data?.attributes?.name === subjectName &&
-            (selectedType === "" || score.attributes?.typeScore === selectedType)
+            (selectedType === "" ||
+              score.attributes?.typeScore === selectedType)
         );
-  
+
         console.log("Filtered Scores:", filteredScores);
-  
+
         setStudentScores(filteredScores);
-  
+
         if (filteredScores.length > 0) {
           setSubjectId(filteredScores[0]?.attributes?.subject?.data?.id);
         }
-  
+
         console.log("Subject ID after setting:", subjectId);
       } catch (error) {
         console.error("API Error:", error);
       }
     };
-  
+
     fetchData();
   }, [subjectName, storedJwt, selectedType, subjectId]);
-  
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -125,7 +133,7 @@ function ScoreManagement() {
             },
           }
         );
-  
+
         const typeScores = response.data.data.map(
           (score) => score.attributes.typeScore
         );
@@ -136,10 +144,9 @@ function ScoreManagement() {
         console.error("Error fetching data:", error);
       }
     };
-  
+
     fetchData();
   }, [user, subjectName, storedJwt]);
-
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -277,9 +284,17 @@ function ScoreManagement() {
         }
       );
 
-      setStudentScores((prevScores) =>
-        prevScores.filter((score) => score.id !== deleteScoreId)
-      );
+      setStudentScores((prevScores) => {
+        const newScores = prevScores.filter((score) => score.id !== deleteScoreId);
+      
+        if (newScores.length === 0) {
+          setSelectedType("");
+        }
+      
+        return newScores;
+      });
+      
+      
     } catch (error) {
       console.error("Delete Error:", error);
     } finally {
@@ -327,14 +342,20 @@ function ScoreManagement() {
   const handleCreateInputChange = (e) => {
     const { name, value } = e.target;
     setNewScore((prevScore) => ({ ...prevScore, [name]: value }));
+  
   };
+
   const saveNewScore = async () => {
     try {
       const selectedUser = newScore.student_id.split(",")[1];
       const selectedUserId = newScore.student_id.split(",")[0];
       console.log(newScore.student_id);
       console.log(selectedUserId);
-  
+      console.log(newScore);
+     
+      if (newScore.typeScore === "Other") {
+        newScore.typeScore = newScore.otherTypeScore;
+      }
       const postCreateData = {
         data: {
           student_id: selectedUser,
@@ -356,7 +377,7 @@ function ScoreManagement() {
           },
         },
       };
-  
+
       const PostCreate = await axios.post(
         `${conf.apiUrlPrefix}${conf.viewsNotPopEndpoint}`,
         postCreateData,
@@ -366,9 +387,9 @@ function ScoreManagement() {
           },
         }
       );
-  
+
       console.log("Created Score Data:", PostCreate.data);
-  
+
       const response = await axios.get(
         `${conf.apiUrlPrefix}${conf.viewsEndpoint}`,
         {
@@ -396,14 +417,17 @@ function ScoreManagement() {
         ack_datetime: "",
         ack: false,
         typeScore: "",
+        otherTypeScore: "",
       });
-  
+
+      setSelectedType(newScore.typeScore);
+
       setShowCreateModal(false);
+
     } catch (error) {
       console.error("Create Error:", error);
     }
   };
-  
 
   const handleDownload = () => {
     const fileUrl = "./components/excelTest.xlsx";
@@ -429,6 +453,7 @@ function ScoreManagement() {
           >
             Create New Score
           </Button>
+
           <Button
             variant="primary"
             size="sm"
