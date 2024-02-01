@@ -7,6 +7,7 @@ import neutralImage from "../../image/neutral.png";
 import { AuthContext } from "../../Auth/AuthContext";
 import axios from "axios";
 
+// คอมโพเนนต์สำหรับแสดงรายละเอียดคะแนน
 const ScoreDetailsModal = ({
   show,
   handleClose,
@@ -19,9 +20,10 @@ const ScoreDetailsModal = ({
   const { state: ContextState } = useContext(AuthContext);
   const { user } = ContextState;
 
-  const [subjectViews, setSubjectViews] = useState([]);
-  const [scoreTypes, setScoreTypes] = useState([]);
+  const [subjectViews, setSubjectViews] = useState([]); // สถานะสำหรับเก็บข้อมูลวิชาที่เกี่ยวข้อง
+  const [scoreTypes, setScoreTypes] = useState([]); // สถานะสำหรับเก็บรายการประเภทคะแนน
 
+  // ฟังก์ชัน useEffect สำหรับดึงข้อมูลวิชาที่เกี่ยวข้องเมื่อมีการเลือกวิชา
   useEffect(() => {
     const fetchSubjectViews = async () => {
       try {
@@ -31,13 +33,16 @@ const ScoreDetailsModal = ({
             Authorization: `Bearer ${authToken}`,
           };
 
+          // เรียก API เพื่อดึงข้อมูลวิชาที่เกี่ยวข้อง
           const response = await axios.get(
             `http://localhost:1337/api/views?populate=*&filters[student_id][$eq]=${user?.username}&filters[subject][name][$eq]=${selectedItem.attributes.name}`,
             { headers }
           );
 
+          // กำหนดข้อมูลวิชาที่ได้ไปยัง state
           setSubjectViews(response.data.data);
 
+          // สร้างรายการประเภทคะแนน
           const types = generateScoreTypes(response.data.data);
           setScoreTypes(types);
         }
@@ -49,6 +54,7 @@ const ScoreDetailsModal = ({
     fetchSubjectViews();
   }, [selectedItem, user?.username]);
 
+  // ฟังก์ชันสร้างรายการประเภทคะแนน
   const generateScoreTypes = (data) => {
     const types = Array.from(new Set(data.map((item) => item.attributes.typeScore)));
     return types;

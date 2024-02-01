@@ -1,7 +1,12 @@
 import React from "react";
 import { Button, Table } from "react-bootstrap";
 
+// คอมโพเนนต์ ScoreTable ใช้สำหรับแสดงตารางคะแนนของนักเรียน
+// โดยรับพารามิเตอร์ต่าง ๆ เช่น studentScores (รายการคะแนนนักเรียน), handleEdit (ฟังก์ชันแก้ไขคะแนน), handleDelete (ฟังก์ชันลบคะแนน), subjectName (ชื่อวิชา)
+
 const ScoreTable = ({ studentScores, handleEdit, handleDelete, subjectName }) => {
+
+  // ฟังก์ชัน formatDatetime ใช้สำหรับแปลงวันที่เป็นรูปแบบที่อ่านง่าย
   const formatDatetime = (datetimeString) => {
     if (!datetimeString) {
       return "Not Available";
@@ -27,12 +32,15 @@ const ScoreTable = ({ studentScores, handleEdit, handleDelete, subjectName }) =>
       <tbody>
         {studentScores.map((score) => (
           <tr key={score.id}>
+            {/* แสดงข้อมูลนักเรียน */}
             <td>{score.attributes?.student_id}</td>
+            {/* แสดงคะแนน */}
             <td>
               {score.attributes?.score} /{" "}
               {score.attributes?.subject?.data?.attributes?.full_score ||
                 "N/A"}
             </td>
+            {/* แสดงสถานะคะแนน */}
             <td
               className={`status ${
                 score.attributes?.score >=
@@ -46,13 +54,17 @@ const ScoreTable = ({ studentScores, handleEdit, handleDelete, subjectName }) =>
                 ? "Positive"
                 : "Negative"}
             </td>
+            {/* แสดงวันที่เห็นคะแนน */}
             <td>{formatDatetime(score.attributes?.seen_datetime)}</td>
+            {/* แสดงวันที่ยอมรับคะแนน */}
             <td>{formatDatetime(score.attributes?.ack_datetime)}</td>
+            {/* แสดงสถานะการยอมรับคะแนน */}
             <td>
               {score.attributes?.ack
                 ? "Acknowledged"
                 : "Not Acknowledged"}
             </td>
+            {/* แสดงปุ่มแก้ไขและลบคะแนน */}
             <td className="text-center">
               <Button
                 variant="info"

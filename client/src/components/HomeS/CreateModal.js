@@ -1,13 +1,13 @@
-
 import React from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
+// คอมโพเนนต์สร้าง Modal สำหรับการสร้างรายวิชาใหม่
 const CreateModal = ({
-  show,
-  handleClose,
-  handleCreateModalSave,
-  newSubjectData,
-  setNewSubjectData,
+  show, // สถานะการแสดง Modal
+  handleClose, // ฟังก์ชันปิด Modal
+  handleCreateModalSave, // ฟังก์ชันที่เรียกเมื่อกดปุ่ม "Create"
+  newSubjectData, // ข้อมูลรายวิชาที่ใช้สร้าง
+  setNewSubjectData, // ฟังก์ชันที่ใช้เปลี่ยนแปลงข้อมูลรายวิชาที่ใช้สร้าง
 }) => {
   return (
     <Modal show={show} onHide={handleClose}>
@@ -16,6 +16,7 @@ const CreateModal = ({
       </Modal.Header>
       <Modal.Body>
         <Form>
+          {/* ช่องกรอกชื่อวิชา */}
           <Form.Group controlId="formSubjectName">
             <Form.Label>Subject Name *</Form.Label>
             <Form.Control
@@ -28,6 +29,7 @@ const CreateModal = ({
             />
           </Form.Group>
 
+          {/* ช่องกรอกคำอธิบายวิชา */}
           <Form.Group controlId="formDescription">
             <Form.Label>Description *</Form.Label>
             <Form.Control
@@ -43,6 +45,7 @@ const CreateModal = ({
             />
           </Form.Group>
 
+          {/* ช่องกรอกชื่อผู้สอน */}
           <Form.Group controlId="formLecturer">
             <Form.Label>Lecturer *</Form.Label>
             <Form.Control
@@ -58,6 +61,7 @@ const CreateModal = ({
             />
           </Form.Group>
 
+          {/* ช่องกรอกรหัสวิชา */}
           <Form.Group controlId="formCourseCode">
             <Form.Label>Course Code *</Form.Label>
             <Form.Control
@@ -73,7 +77,7 @@ const CreateModal = ({
             />
           </Form.Group>
 
-
+          {/* ช่องกรอกคะแนนเต็ม */}
           <Form.Group controlId="formFullScore">
             <Form.Label>Full Score *</Form.Label>
             <Form.Control
@@ -89,6 +93,7 @@ const CreateModal = ({
             />
           </Form.Group>
 
+          {/* ช่องกรอกเกณฑ์คะแนน */}
           <Form.Group controlId="formScoreCriteria" style={{ marginTop: "8px" }}>
             <Form.Label>Score Criteria *</Form.Label>
             <Form.Control
@@ -104,6 +109,7 @@ const CreateModal = ({
             />
           </Form.Group>
 
+          {/* ช่องกรอกวันที่เผยแพร่ */}
           <Form.Group controlId="formPublishAt" style={{ marginTop: "8px" }}>
             <Form.Label>Publish Date *</Form.Label>
             <Form.Control
@@ -120,9 +126,11 @@ const CreateModal = ({
         </Form>
       </Modal.Body>
       <Modal.Footer>
+        {/* ปุ่มปิด Modal */}
         <Button variant="secondary" onClick={handleClose}>
           Close
         </Button>
+        {/* ปุ่มสร้างรายวิชา */}
         <Button variant="primary" onClick={handleCreateModalSave}>
           Create
         </Button>

@@ -12,7 +12,7 @@ import App from "./App";
 import HomeS from "./web_page/homeS";
 import LoginRedirect from "./login/LoginRedirect";
 import ScoreManagement from "./web_page/ScoreManagement";
-import PrivateRoute from "./Auth/PrivateRoute";
+import PrivateRoute from "./Auth/PrivateRouteForStaff";
 
 const AppRouter = () => {
   return (
